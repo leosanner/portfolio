@@ -60,6 +60,8 @@
 | Method | Path | Description |
 |---|---|---|
 | GET | `/api/me` | Get current user info |
+| GET | `/api/projects/admin/all` | List all projects (including drafts) |
+| GET | `/api/projects/admin/:id` | Get project by ID (with relations) |
 | POST | `/api/projects` | Create a new project |
 | PATCH | `/api/projects/:id` | Update a project |
 | DELETE | `/api/projects/:id` | Delete a project |
@@ -161,11 +163,11 @@
 - ~~Basic route protection middleware~~
 - ~~CI pipeline (lint, typecheck, tests via GitHub Actions)~~
 
-### Phase 2 — Project CRUD (Backend DONE, Admin UI pending)
+### Phase 2 — Project CRUD (DONE)
 - ~~Project entity with full CRUD (API)~~
 - ~~Technology management (API)~~
 - ~~Project links management (nested in project CRUD)~~
-- Admin UI for content management
+- ~~Admin UI for content management (login, technology CRUD, project CRUD with links/technologies)~~
 
 ### Phase 3 — Video Integration
 - Cloudflare Stream adapter
