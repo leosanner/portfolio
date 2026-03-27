@@ -18,7 +18,7 @@ app.get("/api/health", (c) => {
 });
 
 app.all("/api/auth/*", async (c) => {
-  const auth = createAuth(c.env);
+  const auth = createAuth(c.env, c.req.url);
   return auth.handler(c.req.raw);
 });
 

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Dev server port flexibility: removed hardcoded port, Vite auto-picks available port
+- Auth URLs now derived dynamically (`window.location.origin` on client, request URL on server) instead of hardcoded localhost:5173
+- Better Auth database adapter switched from raw D1 (Kysely, camelCase) to Drizzle adapter with schema, fixing snake_case column mismatch errors
+- `trustedOrigins` in dev now accepts any localhost port
+
 ### Added
 
 #### Phase 2 — Admin UI
