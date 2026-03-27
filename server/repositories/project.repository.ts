@@ -16,6 +16,11 @@ export class ProjectRepository {
     this.db = drizzle(d1);
   }
 
+  async findAll() {
+    const projects = await this.db.select().from(project).all();
+    return Promise.all(projects.map((p) => this.loadRelations(p)));
+  }
+
   async findAllPublished() {
     const projects = await this.db
       .select()
