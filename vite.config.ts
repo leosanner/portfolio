@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import devServer from "@hono/vite-dev-server";
+import { cloudflareAdapter } from "@hono/vite-dev-server/cloudflare";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -12,6 +13,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     devServer({
+      adapter: cloudflareAdapter,
       entry: "worker/index.ts",
       exclude: [
         /^\/(src|node_modules|@).+/,
