@@ -53,6 +53,7 @@
 | GET | `/api/health` | Health check |
 | GET | `/api/projects` | List published projects |
 | GET | `/api/projects/:slug` | Get project by slug |
+| GET | `/api/technologies` | List all technologies |
 
 ### Authenticated
 
@@ -160,10 +161,10 @@
 - ~~Basic route protection middleware~~
 - ~~CI pipeline (lint, typecheck, tests via GitHub Actions)~~
 
-### Phase 2 — Project CRUD
-- Project entity with full CRUD
-- Technology management
-- Project links management
+### Phase 2 — Project CRUD (Backend DONE, Admin UI pending)
+- ~~Project entity with full CRUD (API)~~
+- ~~Technology management (API)~~
+- ~~Project links management (nested in project CRUD)~~
 - Admin UI for content management
 
 ### Phase 3 — Video Integration
