@@ -3,6 +3,7 @@ import { createAuth } from "./auth";
 import { requireAuth } from "./middleware/auth";
 import { errorHandler } from "./middleware/error";
 import { createTechnologyRoutes } from "./routes/technology.routes";
+import { createProjectRoutes } from "./routes/project.routes";
 import type { AppEnv } from "@shared/types/env";
 
 const app = new Hono<AppEnv>();
@@ -10,6 +11,7 @@ const app = new Hono<AppEnv>();
 app.onError(errorHandler);
 
 app.route("/api/technologies", createTechnologyRoutes());
+app.route("/api/projects", createProjectRoutes());
 
 app.get("/api/health", (c) => {
   return c.json({ status: "ok" });
