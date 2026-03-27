@@ -4,6 +4,7 @@ export type Bindings = {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   ADMIN_EMAIL: string;
+  APP_URL?: string;
 };
 
 export type AppEnv = {

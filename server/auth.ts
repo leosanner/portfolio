@@ -3,10 +3,7 @@ import type { Bindings } from "@shared/types/env";
 
 export function createAuth(env: Bindings) {
   return betterAuth({
-    database: {
-      type: "sqlite",
-      url: ":memory:",
-    },
+    database: env.DB,
     secret: env.BETTER_AUTH_SECRET,
     socialProviders: {
       google: {
@@ -14,7 +11,9 @@ export function createAuth(env: Bindings) {
         clientSecret: env.GOOGLE_CLIENT_SECRET,
       },
     },
-    trustedOrigins: ["http://localhost:5173"],
+    trustedOrigins: env.APP_URL
+      ? [env.APP_URL]
+      : ["http://localhost:5173"],
   });
 }
 

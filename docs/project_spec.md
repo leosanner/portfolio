@@ -156,9 +156,9 @@
 ### Phase 1 — Foundation (DONE)
 - ~~Project scaffolding (Vite + Hono + Wrangler)~~
 - ~~D1 database setup with Drizzle schema and migrations~~
-- ~~Better Auth integration with Google provider~~
+- ~~Better Auth integration with Google provider (D1-backed)~~
 - ~~Basic route protection middleware~~
-- CI pipeline (lint, typecheck, tests) — lint and typecheck configured, CI pipeline pending
+- ~~CI pipeline (lint, typecheck, tests via GitHub Actions)~~
 
 ### Phase 2 — Project CRUD
 - Project entity with full CRUD
