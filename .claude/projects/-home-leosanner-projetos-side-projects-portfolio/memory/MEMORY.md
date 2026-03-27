@@ -1,0 +1,6 @@
+- [Project overview](project_overview.md) — Full-stack portfolio with React/Vite + Hono + Cloudflare Workers
+- [TDD rule](feedback_tdd.md) — Tests first, always. #1 project rule, no exceptions
+- [Project detail page](project_detail_page.md) — Markdown description, technologies, links, video per project
+- [Project status](project_status.md) — Phase 1+2 done, Phase 3 (video) next, Phase 4 (public UI) after
+- [Commit style](feedback_commit_style.md) — Commit per step, update docs after full feature
+- [Design patterns](feedback_design_patterns.md) — Use classes for repos/services, constructor injection
