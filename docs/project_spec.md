@@ -118,17 +118,47 @@
 - `status`: enum (pending, ready, error)
 - `createdAt`: timestamp
 
-### Auth Tables
-- Managed by Better Auth (sessions, accounts, etc.)
+### Session (Better Auth)
+- `id`: string (primary key)
+- `expiresAt`: timestamp
+- `token`: string (unique)
+- `ipAddress`: string (nullable)
+- `userAgent`: string (nullable)
+- `userId`: string (foreign key -> User)
+- `createdAt`: timestamp
+- `updatedAt`: timestamp
+
+### Account (Better Auth)
+- `id`: string (primary key)
+- `accountId`: string
+- `providerId`: string
+- `userId`: string (foreign key -> User)
+- `accessToken`: string (nullable)
+- `refreshToken`: string (nullable)
+- `idToken`: string (nullable)
+- `accessTokenExpiresAt`: timestamp (nullable)
+- `refreshTokenExpiresAt`: timestamp (nullable)
+- `scope`: string (nullable)
+- `password`: string (nullable)
+- `createdAt`: timestamp
+- `updatedAt`: timestamp
+
+### Verification (Better Auth)
+- `id`: string (primary key)
+- `identifier`: string
+- `value`: string
+- `expiresAt`: timestamp
+- `createdAt`: timestamp (nullable)
+- `updatedAt`: timestamp (nullable)
 
 ## Milestones
 
-### Phase 1 — Foundation
-- Project scaffolding (Vite + Hono + Wrangler)
-- D1 database setup with Drizzle schema and migrations
-- Better Auth integration with Google provider
-- Basic route protection middleware
-- CI pipeline (lint, typecheck, tests)
+### Phase 1 — Foundation (DONE)
+- ~~Project scaffolding (Vite + Hono + Wrangler)~~
+- ~~D1 database setup with Drizzle schema and migrations~~
+- ~~Better Auth integration with Google provider~~
+- ~~Basic route protection middleware~~
+- CI pipeline (lint, typecheck, tests) — lint and typecheck configured, CI pipeline pending
 
 ### Phase 2 — Project CRUD
 - Project entity with full CRUD

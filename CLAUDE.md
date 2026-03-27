@@ -77,6 +77,7 @@ public/           → Static assets
 - `BETTER_AUTH_SECRET` — Auth session encryption secret
 - `GOOGLE_CLIENT_ID` — Google OAuth client ID
 - `GOOGLE_CLIENT_SECRET` — Google OAuth client secret
+- `ADMIN_EMAIL` — Authorized admin email (restricts login to this user)
 - `CLOUDFLARE_API_TOKEN` — Cloudflare API token
 - `CLOUDFLARE_ACCOUNT_ID` — Cloudflare account ID
 - `STREAM_TOKEN` — Cloudflare Stream API token
