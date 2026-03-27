@@ -3,6 +3,7 @@ import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
 import { Login } from "./pages/admin/Login";
 import { AdminLayout } from "./layouts/AdminLayout";
+import { AuthGuard } from "./components/AuthGuard";
 import { Projects } from "./pages/admin/Projects";
 import { ProjectForm } from "./pages/admin/ProjectForm";
 import { Technologies } from "./pages/admin/Technologies";
@@ -14,7 +15,14 @@ export function App() {
         <Route path="/" element={<Home />} />
 
         <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={
+            <AuthGuard>
+              <AdminLayout />
+            </AuthGuard>
+          }
+        >
           <Route index element={<Projects />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projects/new" element={<ProjectForm />} />
