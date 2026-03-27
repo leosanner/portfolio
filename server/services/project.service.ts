@@ -63,8 +63,10 @@ export class ProjectService {
       await this.projectRepo.setProjectLinks(id, input.links);
     }
 
-    const { technologyIds, links, ...projectFields } = input;
-    if (Object.keys(projectFields).length > 0) {
+    const { title, slug, description, shortDescription, status } = input;
+    const projectFields = { title, slug, description, shortDescription, status };
+    const hasUpdates = Object.values(projectFields).some((v) => v !== undefined);
+    if (hasUpdates) {
       await this.projectRepo.update(id, projectFields);
     }
 
