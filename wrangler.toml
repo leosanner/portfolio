@@ -1,0 +1,11 @@
+name = "portfolio"
+main = "worker/index.ts"
+compatibility_date = "2025-01-01"
+
+assets = { directory = "dist" }
+
+[[d1_databases]]
+binding = "DB"
+database_name = "portfolio-db"
+database_id = "local"
+migrations_dir = "drizzle/migrations"
