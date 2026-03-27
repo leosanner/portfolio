@@ -1,9 +1,12 @@
 import { Hono } from "hono";
 import { createAuth } from "./auth";
 import { requireAuth } from "./middleware/auth";
+import { errorHandler } from "./middleware/error";
 import type { AppEnv } from "@shared/types/env";
 
 const app = new Hono<AppEnv>();
+
+app.onError(errorHandler);
 
 app.get("/api/health", (c) => {
   return c.json({ status: "ok" });
