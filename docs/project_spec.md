@@ -15,7 +15,7 @@
 - **Stack/Technologies section**: Display technologies and tools used
 - **Experience section**: Professional experience timeline
 - **Projects list**: Browse all published projects with description, stack, and links
-- **Project detail page**: Full project view with description, stack, links, repository link, and embedded video player
+- **Project detail page**: Full project view with markdown-rendered description, technologies used, links (GitHub repo, live website if exists), and embedded video player
 - **Video playback**: Stream-powered video player on project pages
 
 ### Authenticated/Admin Area
@@ -88,7 +88,7 @@
 - `id`: string (primary key)
 - `title`: string
 - `slug`: string (unique)
-- `description`: text
+- `description`: text (markdown content, rendered on project detail page)
 - `shortDescription`: string
 - `status`: enum (draft, published)
 - `createdAt`: timestamp
