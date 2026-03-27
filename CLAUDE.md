@@ -23,7 +23,14 @@ A full-stack portfolio application built with React/Vite (frontend) and Hono (ba
 
 ## Development Guidelines
 
-- **TDD**: Write tests first. All business logic must have corresponding tests.
+### #1 Rule: TDD — Tests First, Always
+- **Every feature starts with a failing test.** No production code is written before a test exists for it.
+- Write the test → see it fail → write the minimum code to pass → refactor. Follow the Red-Green-Refactor cycle strictly.
+- All business logic (services, repositories, controllers, validators) must have corresponding tests.
+- Tests are not an afterthought — they are the first artifact of any implementation task.
+- If a test doesn't exist for a behavior, that behavior is not considered implemented.
+
+### Other Guidelines
 - **TypeScript**: Strict mode. Shared Zod schemas for validation across frontend and backend.
 - **Architecture**: Simplified MVC + Service Layer. Keep layers decoupled — controllers call services, services call repositories.
 - **Patterns**: Repository Pattern for data access, Adapter Pattern for external integrations (Stream), DTOs at API boundaries.

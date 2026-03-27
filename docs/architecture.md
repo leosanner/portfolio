@@ -131,3 +131,4 @@ portfolio/
 | Admin email restriction | Single admin user enforced via `ADMIN_EMAIL` env var in middleware — no RBAC needed for MVP |
 | Direct-to-Stream uploads | Avoids Worker body size limits and unnecessary bandwidth costs |
 | Hono over itty-router | Middleware ecosystem, Better Auth integration, familiar Express-like API |
+| TDD mandatory | Every feature starts with a failing test — Red-Green-Refactor cycle enforced for all business logic |
