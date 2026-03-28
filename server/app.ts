@@ -27,7 +27,15 @@ app.get("/api/me", requireAuth, (c) => {
 });
 
 app.get("*", async (c) => {
-  return c.env.ASSETS.fetch(c.req.raw);
+  try {
+    const url = new URL("/index.html", c.req.url);
+    return c.env.ASSETS.fetch(new Request(url));
+  } catch {
+    return c.html(
+      "<html><body><h1>Something went wrong</h1><p>Please try again later.</p></body></html>",
+      500,
+    );
+  }
 });
 
 export { app };

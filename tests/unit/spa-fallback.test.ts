@@ -31,6 +31,39 @@ describe("SPA fallback", () => {
     expect(mockAssets.fetch).toHaveBeenCalled();
   });
 
+  it("serves index.html for SPA routes regardless of path", async () => {
+    const mockAssets = {
+      fetch: vi.fn((req: Request) => {
+        if (new URL(req.url).pathname === "/index.html") {
+          return new Response("<html>SPA</html>", { status: 200 });
+        }
+        return new Response("Not Found", { status: 404 });
+      }),
+    };
+
+    const res = await app.request("/admin", {}, { ASSETS: mockAssets });
+
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("<html>SPA</html>");
+    const fetchedUrl = new URL(mockAssets.fetch.mock.calls[0][0].url);
+    expect(fetchedUrl.pathname).toBe("/index.html");
+  });
+
+  it("returns HTML error when ASSETS.fetch throws", async () => {
+    const mockAssets = {
+      fetch: vi.fn(() => {
+        throw new Error("ASSETS unavailable");
+      }),
+    };
+
+    const res = await app.request("/admin", {}, { ASSETS: mockAssets });
+
+    expect(res.status).toBe(500);
+    const text = await res.text();
+    expect(text).toContain("<html>");
+    expect(text).not.toContain('"error"');
+  });
+
   it("does not affect API routes", async () => {
     const res = await app.request("/api/health");
 
