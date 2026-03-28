@@ -26,5 +26,9 @@ app.get("/api/me", requireAuth, (c) => {
   return c.json({ user: c.get("user") });
 });
 
+app.get("*", async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
+
 export { app };
 export type AppType = typeof app;
