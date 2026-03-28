@@ -62,9 +62,18 @@ npm run db:generate
 # Apply migrations (local)
 npm run db:migrate
 
+# Apply migrations (production)
+npm run db:migrate:prod
+
 # Deploy
 npm run deploy
 ```
+
+## CI/CD
+
+- **Push to main**: lint → typecheck → test → D1 migrations → deploy
+- **Pull requests**: lint → typecheck → test (no deploy)
+- **GitHub secrets**: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
 
 ## Project Structure
 
