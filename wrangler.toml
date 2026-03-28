@@ -1,4 +1,5 @@
 name = "portfolio"
+keep_vars = true
 main = "worker/index.ts"
 compatibility_date = "2025-01-01"
 
@@ -10,3 +11,7 @@ database_name = "portfolio-db"
 database_id = "b8370188-f60d-4ff4-8ee8-5cc4c03433ec"
 preview_database_id = "51b9fbab-da85-4e3b-b2dd-1ed123c8b82c"
 migrations_dir = "drizzle/migrations"
+
+[vars]
+ADMIN_EMAIL = "leosanner12@gmail.com"
+CLOUDFLARE_ACCOUNT_ID = "beab21a992537384eecc29b40490f5d9"
