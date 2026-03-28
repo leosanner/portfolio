@@ -31,8 +31,13 @@ app.get("/api/debug/env", (c) => {
 });
 
 app.all("/api/auth/*", async (c) => {
-  const auth = createAuth(c.env, c.req.url);
-  return auth.handler(c.req.raw);
+  try {
+    const auth = createAuth(c.env, c.req.url);
+    return auth.handler(c.req.raw);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return c.json({ error: "Auth error", details: message }, 500);
+  }
 });
 
 app.get("/api/me", requireAuth, (c) => {
