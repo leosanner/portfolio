@@ -3,7 +3,7 @@ import { createAuth } from "../auth";
 import type { AppEnv } from "@shared/types/env";
 
 export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
-  const auth = createAuth(c.env);
+  const auth = createAuth(c.env, c.req.url);
   const session = await auth.api.getSession({
     headers: c.req.raw.headers,
   });

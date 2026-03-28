@@ -15,10 +15,7 @@ export default defineConfig({
     devServer({
       adapter: cloudflareAdapter,
       entry: "worker/index.ts",
-      exclude: [
-        /^\/(src|node_modules|@).+/,
-        /\.(ts|tsx|css|scss|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$/,
-      ],
+      exclude: [/^(?!\/api\/).*/],
     }),
   ],
   resolve: {

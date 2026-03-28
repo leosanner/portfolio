@@ -10,8 +10,20 @@ export class ProjectService {
     private techRepo: TechnologyRepository,
   ) {}
 
+  async listAll() {
+    return this.projectRepo.findAll();
+  }
+
   async listPublished() {
     return this.projectRepo.findAllPublished();
+  }
+
+  async getById(id: string) {
+    const project = await this.projectRepo.findById(id);
+    if (!project) {
+      throw new NotFoundError("Project not found");
+    }
+    return project;
   }
 
   async getBySlug(slug: string) {

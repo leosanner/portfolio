@@ -5,7 +5,9 @@ import { NotFoundError } from "@server/errors";
 import { errorHandler } from "@server/middleware/error";
 
 const mockService = {
+  listAll: vi.fn(),
   listPublished: vi.fn(),
+  getById: vi.fn(),
   getBySlug: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
@@ -74,6 +76,41 @@ describe("Project Routes", () => {
       mockService.getBySlug.mockRejectedValue(new NotFoundError("Not found"));
 
       const res = await app.request("/api/projects/nonexistent");
+
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe("GET /api/projects/admin/all", () => {
+    it("returns all projects including drafts", async () => {
+      const projects = [
+        { id: "1", title: "Published", status: "published" },
+        { id: "2", title: "Draft", status: "draft" },
+      ];
+      mockService.listAll.mockResolvedValue(projects);
+
+      const res = await app.request("/api/projects/admin/all");
+
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual(projects);
+    });
+  });
+
+  describe("GET /api/projects/admin/:id", () => {
+    it("returns project by id", async () => {
+      const project = { id: "1", title: "Test" };
+      mockService.getById.mockResolvedValue(project);
+
+      const res = await app.request("/api/projects/admin/1");
+
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual(project);
+    });
+
+    it("returns 404 when project not found", async () => {
+      mockService.getById.mockRejectedValue(new NotFoundError("Not found"));
+
+      const res = await app.request("/api/projects/admin/999");
 
       expect(res.status).toBe(404);
     });

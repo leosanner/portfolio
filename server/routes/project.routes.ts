@@ -31,6 +31,19 @@ export function createProjectRoutes(serviceOverride?: ProjectService) {
     return c.json(project);
   });
 
+  routes.get("/admin/all", requireAuth, async (c) => {
+    const service = getService(c.env?.DB);
+    const projects = await service.listAll();
+    return c.json(projects);
+  });
+
+  routes.get("/admin/:id", requireAuth, async (c) => {
+    const id = c.req.param("id");
+    const service = getService(c.env?.DB);
+    const project = await service.getById(id);
+    return c.json(project);
+  });
+
   routes.post("/", requireAuth, async (c) => {
     const body = await c.req.json();
     const parsed = createProjectSchema.safeParse(body);
