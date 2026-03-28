@@ -17,6 +17,19 @@ app.get("/api/health", (c) => {
   return c.json({ status: "ok" });
 });
 
+// Temporary debug endpoint — remove after fixing auth
+app.get("/api/debug/env", (c) => {
+  return c.json({
+    hasDB: !!c.env.DB,
+    hasBetterAuthSecret: !!c.env.BETTER_AUTH_SECRET,
+    hasGoogleClientId: !!c.env.GOOGLE_CLIENT_ID,
+    hasGoogleClientSecret: !!c.env.GOOGLE_CLIENT_SECRET,
+    hasAppUrl: !!c.env.APP_URL,
+    hasAdminEmail: !!c.env.ADMIN_EMAIL,
+    appUrl: c.env.APP_URL || "NOT SET",
+  });
+});
+
 app.all("/api/auth/*", async (c) => {
   const auth = createAuth(c.env, c.req.url);
   return auth.handler(c.req.raw);
