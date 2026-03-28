@@ -31,13 +31,12 @@ describe("SPA fallback", () => {
     expect(mockAssets.fetch).toHaveBeenCalled();
   });
 
-  it("serves index.html for SPA routes regardless of path", async () => {
+  it("passes original request to ASSETS for SPA fallback", async () => {
     const mockAssets = {
       fetch: vi.fn((req: Request) => {
-        if (new URL(req.url).pathname === "/index.html") {
-          return new Response("<html>SPA</html>", { status: 200 });
-        }
-        return new Response("Not Found", { status: 404 });
+        const url = new URL(req.url);
+        expect(url.pathname).toBe("/admin");
+        return new Response("<html>SPA</html>", { status: 200 });
       }),
     };
 
@@ -45,8 +44,6 @@ describe("SPA fallback", () => {
 
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("<html>SPA</html>");
-    const fetchedUrl = new URL(mockAssets.fetch.mock.calls[0][0].url);
-    expect(fetchedUrl.pathname).toBe("/index.html");
   });
 
   it("returns HTML error when ASSETS.fetch throws", async () => {

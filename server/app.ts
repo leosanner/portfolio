@@ -28,8 +28,7 @@ app.get("/api/me", requireAuth, (c) => {
 
 app.get("*", async (c) => {
   try {
-    const url = new URL("/index.html", c.req.url);
-    return c.env.ASSETS.fetch(new Request(url));
+    return c.env.ASSETS.fetch(c.req.raw);
   } catch {
     return c.html(
       "<html><body><h1>Something went wrong</h1><p>Please try again later.</p></body></html>",
