@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Experience from '../../components/Experience';
+import HeroRoute from '../../components/HeroRoute.astro';
 import { locales, t, ui, type Locale } from '../../i18n/ui';
 import { profile, education } from '../../data/profile';
 
@@ -13,19 +14,7 @@ const tr = t(lang);
 ---
 
 <Base lang={lang}>
-  <section class="hero">
-    <div class="hero__inner">
-      <h1 class="hero__name">Leonardo<br />Sanner</h1>
-      <p class="hero__headline">
-        {profile.headline[lang]}, <em>{profile.location[lang]}</em>
-      </p>
-      <p class="hero__bio">{profile.bio[lang]}</p>
-      <ul class="pills">
-        <li><a href={profile.links.linkedin} target="_blank" rel="noopener">LinkedIn</a></li>
-        <li><a href={profile.links.github} target="_blank" rel="noopener">GitHub</a></li>
-      </ul>
-    </div>
-  </section>
+  <HeroRoute lang={lang} />
 
   <section id="experience" class="section">
     <div class="section__head">

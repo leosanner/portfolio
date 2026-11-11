@@ -10,8 +10,8 @@
   --ink: #e3ecec;
   --ink-soft: #9bb1bd;
   --ink-faint: #7f9cac;
-  --route: #e567a9; /* chart magenta: routes and what matters */
-  --route-tint: #3a1a2e;
+  --route: #f2b84b; /* chart amber: routes and what matters */
+  --route-tint: #3a2e14;
 
   --font-sans: "Archivo", system-ui, sans-serif;
   --font-serif: "Source Serif 4", Georgia, serif;
@@ -23,7 +23,7 @@
 /* ---------- Base ---------- */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 72px;
+  scroll-padding-top: 84px;
 }
 body {
   background: var(--bg);
@@ -66,46 +66,106 @@ em {
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 12px max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
+  gap: 36px;
+  padding: 18px max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
   background: color-mix(in srgb, var(--bg) 85%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--grid);
 }
 .topbar__name {
   margin-right: auto;
+  font-size: 1.1875rem;
   font-weight: 750;
+  letter-spacing: -0.01em;
   text-decoration: none;
 }
 .topbar__nav {
   display: flex;
-  gap: 20px;
-  font-size: 0.9375rem;
+  gap: 32px;
+  font-size: 1.0625rem;
+  font-weight: 550;
 }
+/* Links get a short route: the line draws in from the left, then a waypoint lands at its end.
+   The section in view (aria-current, set by the scroll script in Base.astro) keeps its route. */
 .topbar__nav a {
+  position: relative;
+  padding: 6px 0;
   color: var(--ink-soft);
   text-decoration: none;
+  transition: color 200ms;
 }
-.topbar__nav a:hover {
+.topbar__nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--route);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 320ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+.topbar__nav a::before {
+  content: "";
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--route);
+  box-shadow: 0 0 0 3px var(--bg);
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    opacity 120ms,
+    transform 120ms;
+}
+.topbar__nav a:hover,
+.topbar__nav a:focus-visible,
+.topbar__nav a[aria-current] {
   color: var(--ink);
+}
+.topbar__nav a:hover::after,
+.topbar__nav a:focus-visible::after,
+.topbar__nav a[aria-current]::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.topbar__nav a:hover::before,
+.topbar__nav a:focus-visible::before,
+.topbar__nav a[aria-current]::before {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 160ms 260ms,
+    transform 260ms 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .lang {
   display: flex;
   gap: 2px;
-  padding: 2px;
+  padding: 3px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 650;
 }
 .lang a {
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   color: var(--ink-soft);
   text-decoration: none;
+  transition:
+    color 200ms,
+    background 200ms;
+}
+.lang a:hover {
+  color: var(--ink);
 }
 .lang a[aria-current="true"] {
-  background: var(--ink);
+  background: var(--route);
   color: var(--bg);
 }
 @media (max-width: 640px) {
@@ -113,11 +173,20 @@ em {
     display: none;
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  .topbar__nav a::after,
+  .topbar__nav a::before,
+  .topbar__nav a:hover::before,
+  .topbar__nav a[aria-current]::before {
+    transition: none;
+  }
+}
 
-/* ---------- Hero ---------- */
+/* ---------- Hero: greeting + career route ---------- */
 .hero {
   position: relative;
   isolation: isolate;
+  padding: clamp(56px, 8vw, 96px) 0 clamp(24px, 4vw, 48px);
 }
 /* Chart graticule, fading out toward the content below. */
 .hero::before {
@@ -128,52 +197,114 @@ em {
   background-image:
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 120px 120px;
-  background-position: center -1px;
-  mask-image: linear-gradient(to bottom, #000 60%, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  background-size: 80px 80px;
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
 }
-.hero__inner {
+.hero__head {
   max-width: var(--max);
   margin: 0 auto;
-  padding: clamp(56px, 10vw, 120px) var(--gutter) clamp(72px, 10vw, 128px);
+  padding: 0 var(--gutter);
 }
-.hero__name {
-  font-size: clamp(3.4rem, 12vw, 9rem);
-  font-weight: 850;
-  line-height: 0.9;
-  letter-spacing: -0.035em;
+.hero__title {
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
-.hero__headline {
-  margin-top: 24px;
-  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
-  font-weight: 650;
-  color: #c9d6db;
-}
-.hero__bio {
+.hero__sub {
   margin-top: 14px;
-  max-width: 36em;
-  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-style: italic;
   font-size: 1.125rem;
+  color: var(--ink-soft);
 }
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
+.hero__scroll {
+  max-width: var(--max);
+  margin: 28px auto 0;
+  padding: 0 var(--gutter);
+  overflow-x: auto;
+  scrollbar-color: var(--line) transparent;
 }
-.pills a {
-  display: inline-block;
-  padding: 8px 18px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--bg);
-  font-weight: 650;
+.hero__chart {
+  position: relative;
+  min-width: 860px;
+  height: 260px;
+}
+.hero__chart svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.hero__route {
+  fill: none;
+  stroke: var(--route);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: hero-draw 2.4s 0.2s ease-in-out forwards;
+}
+@keyframes hero-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.hero__stop {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  animation: hero-appear 300ms calc(0.3s + var(--i) * 0.27s) ease-out forwards;
+}
+@keyframes hero-appear {
+  to {
+    opacity: 1;
+  }
+}
+.hero__stop a {
   text-decoration: none;
-  transition: border-color 150ms;
 }
-.pills a:hover {
-  border-color: var(--route);
+.hero__dot {
+  position: absolute;
+  left: -7px;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--route);
+  border-radius: 50%;
+  background: var(--bg);
+  transition: transform 150ms;
+}
+.hero__stop.is-ongoing .hero__dot {
+  background: var(--route);
+}
+.hero__label {
+  position: absolute;
+  left: -60px;
+  width: 120px;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+.hero__label em {
+  display: block;
+  font-size: 0.75rem;
+}
+.hero__stop.is-above .hero__label {
+  bottom: 16px;
+}
+.hero__stop.is-below .hero__label {
+  top: 16px;
+}
+.hero__stop a:hover .hero__label,
+.hero__stop a:focus-visible .hero__label {
+  color: var(--route);
+}
+.hero__stop a:hover .hero__dot {
+  transform: scale(1.25);
 }
 
 /* ---------- Sections ---------- */
@@ -533,6 +664,12 @@ em {
   }
   .case {
     animation: none;
+  }
+  .hero__route,
+  .hero__stop {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
   }
 }
 

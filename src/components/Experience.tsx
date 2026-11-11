@@ -101,6 +101,17 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
   const hasMedia = Boolean(study.media?.length);
   const meta = [node.org ?? parent?.org, node.period?.[lang]].filter(Boolean).join(', ');
 
+  // Hero route links point at #tab-<id>: select that stop on load and on every jump.
+  useEffect(() => {
+    const fromHash = () => {
+      const target = decodeURIComponent(location.hash).replace(/^#tab-/, '');
+      if (target !== location.hash && careerById[target]) setId(target);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, []);
+
   // Keep the selected stop visible when the track scrolls sideways (small screens).
   useEffect(() => {
     const track = trackRef.current;

@@ -58,6 +58,31 @@ const title = `${profile.name}, ${profile.headline[lang].toLowerCase()}`;
     <main id="main">
       <slot />
     </main>
+    <script>
+      // Mark the nav link of the section currently in view.
+      const links = [...document.querySelectorAll<HTMLAnchorElement>('.topbar__nav a')];
+      const byId = new Map(links.map((a) => [a.hash.slice(1), a]));
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            links.forEach((a) => a.removeAttribute('aria-current'));
+            byId.get(e.target.id)?.setAttribute('aria-current', 'location');
+          }
+        },
+        { rootMargin: '-45% 0px -50% 0px' },
+      );
+      byId.forEach((_, id) => {
+        const section = document.getElementById(id);
+        if (section) observer.observe(section);
+      });
+      // Above the first section (the hero), nothing is current.
+      const hero = document.querySelector('.hero');
+      if (hero)
+        new IntersectionObserver(([e]) => {
+          if (e.isIntersecting) links.forEach((a) => a.removeAttribute('aria-current'));
+        }, { rootMargin: '-45% 0px -50% 0px' }).observe(hero);
+    </script>
     <footer class="footer">
       <p>© {new Date().getFullYear()} {profile.name}. {tr('footer.built')}</p>
     </footer>

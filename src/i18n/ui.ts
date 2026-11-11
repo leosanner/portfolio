@@ -10,9 +10,10 @@ export const ui = {
     'nav.education': 'Education',
     'nav.contact': 'Contact',
     'nav.language': 'Language',
+    'hero.greeting': 'Hi, I’m Leonardo.',
     'experience.title': 'Experience',
     'experience.intro':
-      'From ocean research to production software. Pick a stop on the timeline to see what I built, how it works and what came out of it.',
+      'Pick a stop on the timeline to see what I built, how it works and what came out of it.',
     'experience.timeline': 'Career timeline',
     'experience.ongoing': 'Ongoing',
     'experience.projects': 'Projects',
@@ -38,9 +39,10 @@ export const ui = {
     'nav.education': 'Formação',
     'nav.contact': 'Contato',
     'nav.language': 'Idioma',
+    'hero.greeting': 'Oi, eu sou o Leonardo.',
     'experience.title': 'Experiência',
     'experience.intro':
-      'Da pesquisa oceânica ao software em produção. Escolha uma parada na linha do tempo para ver o que construí, como funciona e o que resultou disso.',
+      'Escolha uma parada na linha do tempo para ver o que construí, como funciona e o que resultou disso.',
     'experience.timeline': 'Linha do tempo da carreira',
     'experience.ongoing': 'Em andamento',
     'experience.projects': 'Projetos',

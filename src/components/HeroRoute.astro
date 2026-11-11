@@ -1,0 +1,66 @@
+---
+/**
+ * Hero: greeting plus the whole career drawn as one continuous route.
+ * Each stop links to its tab in the Experience timeline (#tab-<id>), which
+ * selects it there (see Experience.tsx).
+ */
+import type { Locale } from '../i18n/ui';
+import { t } from '../i18n/ui';
+import { profile } from '../data/profile';
+import { mainNodes } from '../data/career';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const tr = t(lang);
+
+// Stops alternate slightly above/below the centre line only so labels don't collide.
+// Coordinates are percentages of the chart box; the SVG viewBox is 1000 × 300.
+const stops = mainNodes.map((n, i) => ({
+  n,
+  x: 6 + i * (88 / (mainNodes.length - 1)),
+  y: i % 2 === 0 ? 56 : 44,
+  above: i % 2 === 1,
+}));
+const route = stops
+  .map((p, i) => {
+    if (i === 0) return `M 0 ${p.y * 3} L ${p.x * 10} ${p.y * 3}`;
+    const q = stops[i - 1];
+    const mx = ((q.x + p.x) / 2) * 10;
+    return `C ${mx} ${q.y * 3}, ${mx} ${p.y * 3}, ${p.x * 10} ${p.y * 3}`;
+  })
+  .join(' ');
+---
+
+<section class="hero">
+  <div class="hero__head">
+    <h1 class="hero__title">{tr('hero.greeting')}</h1>
+    <p class="hero__sub">{profile.headline[lang]}, {profile.location[lang]}</p>
+  </div>
+  <nav class="hero__scroll" aria-label={tr('experience.timeline')}>
+    <div class="hero__chart">
+      <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+        <path d={route} class="hero__route" pathLength="1"></path>
+      </svg>
+      <ol>
+        {
+          stops.map((p, i) => (
+            <li
+              class:list={['hero__stop', p.above ? 'is-above' : 'is-below', p.n.ongoing && 'is-ongoing']}
+              style={`left:${p.x}%;top:${p.y}%;--i:${i}`}
+            >
+              <a href={`#tab-${p.n.id}`}>
+                <span class="hero__dot" aria-hidden="true" />
+                <span class="hero__label">
+                  {p.n.title[lang]}
+                  <em>{p.n.period?.[lang]}</em>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </nav>
+</section>
