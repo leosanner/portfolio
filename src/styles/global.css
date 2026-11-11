@@ -76,7 +76,6 @@ em {
 .topbar__name {
   margin-right: auto;
   font-weight: 750;
-  font-stretch: 115%;
   text-decoration: none;
 }
 .topbar__nav {
@@ -141,11 +140,10 @@ em {
   padding: clamp(56px, 10vw, 120px) var(--gutter) clamp(72px, 10vw, 128px);
 }
 .hero__name {
-  font-size: clamp(3.2rem, 11vw, 8.5rem);
-  font-weight: 860;
-  font-stretch: 125%;
-  line-height: 0.88;
-  letter-spacing: -0.025em;
+  font-size: clamp(3.4rem, 12vw, 9rem);
+  font-weight: 850;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
 }
 .hero__headline {
   margin-top: 24px;
@@ -195,7 +193,6 @@ em {
 .section__head h2 {
   font-size: clamp(2rem, 4.5vw, 3rem);
   font-weight: 800;
-  font-stretch: 118%;
   line-height: 1;
   letter-spacing: -0.015em;
 }
@@ -275,7 +272,6 @@ em {
 .stop__title {
   font-size: 0.8125rem;
   font-weight: 700;
-  font-stretch: 96%;
   line-height: 1.2;
 }
 .stop__org {
@@ -309,7 +305,6 @@ em {
   margin-top: 6px;
   font-size: clamp(1.6rem, 3vw, 2.25rem);
   font-weight: 780;
-  font-stretch: 112%;
   line-height: 1.05;
   letter-spacing: -0.01em;
 }
@@ -358,7 +353,6 @@ em {
   margin-top: 24px;
   font-size: 0.875rem;
   font-weight: 700;
-  font-stretch: 108%;
   color: var(--ink-soft);
 }
 .details__tech {
@@ -438,7 +432,6 @@ em {
   width: 36%;
   font-size: 1.125rem;
   font-weight: 700;
-  font-stretch: 108%;
   line-height: 1.3;
 }
 .edu th span {
@@ -484,7 +477,6 @@ em {
   gap: 12px;
   font-size: clamp(1.25rem, 2.6vw, 1.75rem);
   font-weight: 750;
-  font-stretch: 112%;
   text-decoration: underline;
   text-decoration-color: var(--route);
   text-decoration-thickness: 2px;
