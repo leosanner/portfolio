@@ -19,8 +19,7 @@ const title = `${profile.name}, ${profile.headline[lang].toLowerCase()}`;
     <meta name="description" content={profile.bio[lang]} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={profile.bio[lang]} />
-    <meta name="theme-color" content="#EDF2F1" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0B1D29" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0B1D29" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate" hreflang="en" href="/en/" />
     <link rel="alternate" hreflang="pt-BR" href="/pt/" />
@@ -47,10 +46,10 @@ const title = `${profile.name}, ${profile.headline[lang].toLowerCase()}`;
             <a
               href={`/${l}/`}
               hreflang={l === 'pt' ? 'pt-BR' : 'en'}
-              aria-current={l === lang ? 'true' : undefined}
               lang={l === 'pt' ? 'pt-BR' : 'en'}
+              aria-current={l === lang ? 'true' : undefined}
             >
-              {l === 'en' ? 'EN' : 'PT'}
+              {l.toUpperCase()}
             </a>
           ))
         }

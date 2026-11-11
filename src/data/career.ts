@@ -25,12 +25,6 @@ export interface CareerNode {
   links?: { label: Localized; url: string }[];
 }
 
-export interface Phase {
-  id: string;
-  title: Localized;
-  nodeIds: string[];
-}
-
 const liveSite: Localized = { en: 'Open live site', pt: 'Abrir site' };
 
 export const mainNodes: CareerNode[] = [
@@ -254,29 +248,6 @@ export const subprojectNodes: CareerNode[] = [
   },
 ];
 
-export const phases: Phase[] = [
-  {
-    id: 'phase-ml',
-    title: { en: 'Applied machine learning', pt: 'Machine learning aplicado' },
-    nodeIds: ['water-quality', 'ocean-forecasting'],
-  },
-  {
-    id: 'phase-research',
-    title: { en: 'Industry research', pt: 'Pesquisa com a indústria' },
-    nodeIds: ['petrobras'],
-  },
-  {
-    id: 'phase-software',
-    title: { en: 'End-to-end software', pt: 'Software de ponta a ponta' },
-    nodeIds: ['healthcare', 'thesis', 'research-portal'],
-  },
-  {
-    id: 'phase-now',
-    title: { en: 'Where I am now', pt: 'Onde estou agora' },
-    nodeIds: ['trust-gtw', 'masters'],
-  },
-];
-
 export const careerById: Record<string, CareerNode> = Object.fromEntries(
   [...mainNodes, ...subprojectNodes].map((n) => [n.id, n]),
 );
@@ -284,3 +255,20 @@ export const careerById: Record<string, CareerNode> = Object.fromEntries(
 export function getChildren(node: CareerNode): CareerNode[] {
   return (node.childIds ?? []).map((id) => careerById[id]).filter(Boolean);
 }
+
+/**
+ * Two parallel tracks for the experience diagram. Columns follow the story order
+ * of `mainNodes` (not calendar dates); the route line crosses between tracks.
+ */
+export const lanes: { id: string; title: Localized; nodeIds: string[] }[] = [
+  {
+    id: 'research',
+    title: { en: 'Research', pt: 'Pesquisa' },
+    nodeIds: ['water-quality', 'ocean-forecasting', 'petrobras', 'thesis', 'masters'],
+  },
+  {
+    id: 'software',
+    title: { en: 'Software', pt: 'Software' },
+    nodeIds: ['healthcare', 'research-portal', 'trust-gtw'],
+  },
+];

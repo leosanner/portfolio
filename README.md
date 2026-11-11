@@ -15,7 +15,7 @@ npm run build    # static output in dist/
 All copy lives in typed data files, with an `en` and `pt` value for every string:
 
 - `src/data/profile.ts` — name, bio, links, education
-- `src/data/career.ts` — experience route: stops, phases and the Petrobras sub-projects
+- `src/data/career.ts` — experience: stops, the two lanes (research, software) and the Petrobras sub-projects
 - `src/i18n/ui.ts` — interface strings
 
-The experience diagram (`src/components/CareerRoute.tsx`) is laid out from that data by `src/lib/route-layout.ts`.
+The experience diagram (`src/components/CareerLanes.tsx`) is laid out from that data: lanes as rows on wide screens, as columns on narrow ones.
