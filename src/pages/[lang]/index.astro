@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Experience from '../../components/Experience';
 import HeroRoute from '../../components/HeroRoute.astro';
+import OrgLogo from '../../components/OrgLogo';
 import { locales, t, ui, type Locale } from '../../i18n/ui';
 import { profile, education } from '../../data/profile';
 
@@ -36,6 +37,7 @@ const tr = t(lang);
               <th scope="row">
                 {e.degree[lang]}
                 <span>{e.institution}</span>
+                <span class="edu__orgs">{e.orgs.map((o) => <OrgLogo id={o} lang={lang} />)}</span>
               </th>
               <td class="edu__period">{e.period[lang]}</td>
               <td>{e.note?.[lang]}</td>

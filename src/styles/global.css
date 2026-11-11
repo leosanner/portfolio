@@ -434,20 +434,27 @@ em {
   border-color: var(--route);
   background: var(--route-tint);
 }
-.case__grid {
+/* Head: what it is, with the screenshot beside it when there is one. */
+.case__head {
+  max-width: 44em;
+}
+.case__head.has-media {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   gap: 32px 56px;
   align-items: start;
+  max-width: none;
 }
 .case__category,
 .case__label {
   font-family: var(--font-serif);
   font-style: italic;
+  font-weight: 400;
+  font-size: 1rem;
   color: var(--ink-soft);
 }
 .case__label {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .case__title {
   margin-top: 6px;
@@ -470,43 +477,14 @@ em {
 .case__summary {
   margin-top: 18px;
   max-width: 34em;
-  font-size: 1.125rem;
-}
-.case__outcome {
-  margin-top: 16px;
-  padding: 10px 14px;
-  border-radius: 6px;
-  background: var(--route-tint);
-  font-weight: 650;
-}
-.case__results {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 36px;
-  margin-top: 24px;
-}
-.case__results div {
-  display: flex;
-  flex-direction: column;
-}
-.case__results dd {
-  order: 1;
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-.case__results dt {
-  order: 2;
-  margin-top: 4px;
-  font-size: 0.875rem;
-  color: var(--ink-soft);
+  font-size: 1.1875rem;
+  line-height: 1.5;
 }
 .case__links {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 20px;
-  margin-top: 22px;
+  margin-top: 20px;
 }
 .case__links a {
   color: var(--route);
@@ -515,6 +493,181 @@ em {
   text-decoration-thickness: 2px;
   text-underline-offset: 5px;
 }
+
+/* Organisations: logos are white marks (see src/data/orgs.ts), dimmed to sit with the text. */
+.org {
+  --org-h: 26px;
+  display: block;
+  height: var(--org-h);
+  width: auto;
+  opacity: 0.78;
+  transition: opacity 150ms;
+}
+.org:hover {
+  opacity: 1;
+}
+.org--text {
+  height: auto;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: var(--org-h);
+}
+.case__orgs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  margin-top: 24px;
+}
+.case__orgs dt {
+  margin-bottom: 8px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+.case__orgs dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  min-height: 44px;
+}
+
+/* Results: the band right under the head. Outcomes read as waypoints on a short route. */
+.case__results {
+  margin-top: 40px;
+  padding: 24px 0 26px;
+  border-top: 2px solid var(--route);
+  border-bottom: 1px solid var(--line);
+}
+.case__figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 48px;
+  margin-bottom: 20px;
+}
+.case__figures div {
+  display: flex;
+  flex-direction: column;
+}
+.case__figures dd {
+  order: 1;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--route);
+}
+.case__figures dt {
+  order: 2;
+  margin-top: 6px;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+.case__outcomes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px 40px;
+}
+.case__outcomes li {
+  position: relative;
+  padding-left: 24px;
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.case__outcomes li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--route);
+  border-radius: 50%;
+  background: var(--route);
+}
+
+/* Body: the story on the left, the stack as a quiet rail on the right. */
+.case__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 40px 64px;
+  margin-top: 40px;
+  align-items: start;
+}
+.case__story {
+  display: grid;
+  gap: 32px;
+}
+.case__problem {
+  max-width: 36em;
+  font-size: 1.0625rem;
+  color: var(--ink);
+}
+.case__built,
+.case__details {
+  display: grid;
+  gap: 10px;
+  max-width: 40em;
+}
+.case__built li,
+.case__details li {
+  position: relative;
+  padding-left: 22px;
+}
+/* Built items: a short route segment. Details: a hollow mark, one level quieter. */
+.case__built li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75em;
+  width: 12px;
+  border-top: 2px solid var(--route);
+}
+.case__details li {
+  color: var(--ink-soft);
+}
+.case__details li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.5em;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 50%;
+}
+.case__rail {
+  position: sticky;
+  top: 96px;
+  padding-left: 24px;
+  border-left: 1px solid var(--line);
+}
+.case__stack dl {
+  display: grid;
+  gap: 16px;
+}
+.case__stack dt {
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+}
+.case__tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.case__tech li {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.8125rem;
+  font-weight: 550;
+}
+
 .case__media {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -545,24 +698,20 @@ em {
   height: auto;
 }
 .case > .case__flow {
-  margin-top: 40px;
-}
-.case__tech {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 24px;
-}
-.case__tech li {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  font-size: 0.8125rem;
-  font-weight: 550;
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
 }
 @media (max-width: 860px) {
-  .case__grid {
+  .case__head.has-media,
+  .case__body {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .case__rail {
+    position: static;
+    padding: 24px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
   }
 }
 
@@ -597,6 +746,15 @@ em {
   font-weight: 400;
   font-size: 1rem;
   color: var(--ink-soft);
+}
+.edu th span.edu__orgs {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 12px;
+}
+.edu .org {
+  --org-h: 22px;
 }
 .edu__period {
   white-space: nowrap;

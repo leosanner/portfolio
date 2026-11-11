@@ -4,6 +4,7 @@
  * planned work (master's) is never presented as delivered.
  */
 import type { Localized } from '../i18n/ui';
+import type { Affiliation } from './orgs';
 
 export type CareerKind = 'research' | 'consulting' | 'thesis' | 'job' | 'masters' | 'subproject';
 
@@ -15,10 +16,11 @@ export interface CareerNode {
   period?: Localized;
   ongoing?: boolean;
   org?: string;
+  /** Funders, universities and companies involved. Subprojects inherit their parent's. */
+  affiliations?: Affiliation[];
   parentId?: string;
   childIds?: string[];
   summary: Localized;
-  outcome?: Localized;
   highlights: Localized<string[]>;
   techTitle?: Localized;
   tech: string[];
@@ -32,6 +34,7 @@ export const mainNodes: CareerNode[] = [
     category: { en: 'Funded research (CNPq)', pt: 'Iniciação científica (CNPq)' },
     period: { en: '~3 months', pt: '~3 meses' },
     org: 'UNIFESP',
+    affiliations: [{ org: 'cnpq', role: 'funding' }, { org: 'unifesp', role: 'university' }],
     summary: {
       en: 'Built a sensor-based water quality prototype for the Port of Santos and explored machine learning classification.',
       pt: 'Construí um protótipo com sensores para monitorar a qualidade da água no Porto de Santos e explorei classificação com machine learning.',
@@ -49,6 +52,7 @@ export const mainNodes: CareerNode[] = [
     category: { en: 'Research study', pt: 'Estudo de pesquisa' },
     period: { en: '~6 months', pt: '~6 meses' },
     org: 'UNIFESP',
+    affiliations: [{ org: 'unifesp', role: 'university' }],
     summary: {
       en: 'Explored predictive models for extreme ocean events using scientific datasets and NASA data.',
       pt: 'Explorei modelos preditivos para eventos oceânicos extremos com bases científicas e dados da NASA.',
@@ -67,13 +71,10 @@ export const mainNodes: CareerNode[] = [
     period: { en: '~1 year', pt: '~1 ano' },
     org: 'UNIFESP / USP',
     childIds: ['petrobras-classifier', 'petrobras-rag', 'petrobras-visualization'],
+    affiliations: [{ org: 'petrobras', role: 'funding' }, { org: 'unifesp', role: 'university' }, { org: 'usp', role: 'university' }],
     summary: {
       en: 'Built AI tools for analysing, searching and exploring scientific literature on environmental impact.',
       pt: 'Desenvolvi ferramentas de IA para analisar, consultar e explorar literatura científica sobre impacto ambiental.',
-    },
-    outcome: {
-      en: 'Selected research products secured internal investment.',
-      pt: 'Produtos selecionados da pesquisa receberam investimento interno.',
     },
     highlights: {
       en: ['Article classification', 'Retrieval-augmented generation', 'Interactive visualizations'],
@@ -115,6 +116,7 @@ export const mainNodes: CareerNode[] = [
     category: { en: 'Undergraduate thesis', pt: 'Trabalho de conclusão de curso' },
     period: { en: 'Delivered Jan 2026', pt: 'Entregue em jan. 2026' },
     org: 'UNIFESP',
+    affiliations: [{ org: 'unifesp', role: 'university' }],
     summary: {
       en: 'A web app that uses text mining to recommend evaluators for a thesis from its title, abstract and keywords.',
       pt: 'Aplicação web que usa mineração de texto para recomendar avaliadores a partir do título, resumo e palavras-chave do trabalho.',
@@ -149,6 +151,7 @@ export const mainNodes: CareerNode[] = [
     period: { en: 'Since Jul 2026', pt: 'Desde jul. 2026' },
     ongoing: true,
     org: 'Trust GTW',
+    affiliations: [{ org: 'trust-gtw', role: 'company' }],
     summary: {
       en: 'Building a Go telemetry collector that receives client data over OpenTelemetry, validates it and forwards it to ingestion on AWS.',
       pt: 'Desenvolvo um coletor de telemetria em Go que recebe dados de clientes via OpenTelemetry, valida e encaminha para ingestão na AWS.',
@@ -177,6 +180,7 @@ export const mainNodes: CareerNode[] = [
     period: { en: 'Since Aug 2026', pt: 'Desde ago. 2026' },
     ongoing: true,
     org: 'UNIFESP / USP',
+    affiliations: [{ org: 'petrobras', role: 'funding' }, { org: 'unifesp', role: 'university' }, { org: 'usp', role: 'university' }],
     summary: {
       en: 'A platform that turns data from different sources and regulators into accessible knowledge for environmental impact assessment.',
       pt: 'Plataforma que transforma dados de diferentes fontes e órgãos reguladores em conhecimento acessível para avaliação de impacto ambiental.',
@@ -246,6 +250,11 @@ export const subprojectNodes: CareerNode[] = [
 export const careerById: Record<string, CareerNode> = Object.fromEntries(
   [...mainNodes, ...subprojectNodes].map((n) => [n.id, n]),
 );
+
+/** Affiliations for a node, falling back to its parent's. */
+export function getAffiliations(node: CareerNode): Affiliation[] {
+  return node.affiliations ?? (node.parentId ? careerById[node.parentId]?.affiliations : undefined) ?? [];
+}
 
 export function getChildren(node: CareerNode): CareerNode[] {
   return (node.childIds ?? []).map((id) => careerById[id]).filter(Boolean);

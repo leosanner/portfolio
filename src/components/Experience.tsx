@@ -1,30 +1,107 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { careerById, getChildren, mainNodes, type CareerNode } from '../data/career';
+import { careerById, getAffiliations, getChildren, mainNodes, type CareerNode } from '../data/career';
+import type { OrgRole } from '../data/orgs';
+import OrgLogo from './OrgLogo';
 import { caseStudies, type CaseStudy } from '../data/case-studies';
 import type { Locale, UIStrings } from '../i18n/ui';
 import FlowDiagram from './FlowDiagram';
 
 /**
  * Experience: a slim timeline of stops, and one case study at a time below it.
- * The case study leads with real results (when supplied), shows a screenshot when
- * there is one, and always explains "how it works" with an animated flow.
+ * Each case study reads top to bottom: what it is (with a screenshot when there is one),
+ * results, the problem / what was built / technical details beside a layered stack,
+ * and an animated "how it works" flow.
  */
 
 const DEFAULT_ID = 'trust-gtw';
 
 /* ---------- Pieces ---------- */
 
-function Results({ study, lang, ui }: { study: CaseStudy; lang: Locale; ui: UIStrings }) {
-  if (!study.results?.length) return null;
+function ResultsBand({ study, lang, ui }: { study: CaseStudy; lang: Locale; ui: UIStrings }) {
+  const figures = study.results ?? [];
+  const outcomes = study.outcomes ?? [];
+  if (!figures.length && !outcomes.length) return null;
   return (
-    <dl className="case__results" aria-label={ui['experience.results']}>
-      {study.results.map((r) => (
-        <div key={r.value + r.label.en}>
-          <dt>{r.label[lang]}</dt>
-          <dd>{r.value}</dd>
-        </div>
-      ))}
+    <div className="case__results">
+      <h4 className="case__label">{ui['experience.results']}</h4>
+      {figures.length > 0 && (
+        <dl className="case__figures">
+          {figures.map((r) => (
+            <div key={r.value + r.label.en}>
+              <dt>{r.label[lang]}</dt>
+              <dd>{r.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {outcomes.length > 0 && (
+        <ul className="case__outcomes">
+          {outcomes.map((o) => (
+            <li key={o.en}>{o[lang]}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function Affiliations({ node, lang, ui }: { node: CareerNode; lang: Locale; ui: UIStrings }) {
+  const all = getAffiliations(node);
+  if (!all.length) return null;
+  const roles: OrgRole[] = ['funding', 'university', 'company'];
+  return (
+    <dl className="case__orgs">
+      {roles.map((role) => {
+        const items = all.filter((a) => a.role === role);
+        if (!items.length) return null;
+        return (
+          <div key={role}>
+            <dt>{ui[`experience.org.${role}`]}</dt>
+            <dd>
+              {items.map((a) => (
+                <OrgLogo key={a.org} id={a.org} lang={lang} />
+              ))}
+            </dd>
+          </div>
+        );
+      })}
     </dl>
+  );
+}
+
+function Story({ node, study, lang, ui }: { node: CareerNode; study: CaseStudy; lang: Locale; ui: UIStrings }) {
+  const built = study.built?.[lang] ?? node.highlights[lang];
+  const details = study.details?.[lang] ?? [];
+  const planned = Boolean(study.flowPlanned);
+  return (
+    <div className="case__story">
+      {study.problem && (
+        <section>
+          <h4 className="case__label">{ui['experience.problem']}</h4>
+          <p className="case__problem">{study.problem[lang]}</p>
+        </section>
+      )}
+      {built.length > 0 && (
+        <section>
+          <h4 className="case__label">{planned ? ui['experience.plannedScope'] : ui['experience.built']}</h4>
+          <ul className="case__built">
+            {built.map((b) => (
+              <li key={b}>{b}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {details.length > 0 && (
+        <section>
+          <h4 className="case__label">{ui['experience.details']}</h4>
+          <ul className="case__details">
+            {details.map((d) => (
+              <li key={d}>{d}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
   );
 }
 
@@ -76,14 +153,27 @@ function Links({ study, ui }: { study: CaseStudy; ui: UIStrings }) {
   );
 }
 
-function Tech({ node, lang, ui }: { node: CareerNode; lang: Locale; ui: UIStrings }) {
-  if (!node.tech.length) return null;
+function Stack({ node, study, lang, ui }: { node: CareerNode; study: CaseStudy; lang: Locale; ui: UIStrings }) {
+  const layers = study.stack ?? (node.tech.length ? [{ layer: null, items: node.tech }] : []);
+  if (!layers.length) return null;
   return (
-    <ul className="case__tech" aria-label={node.techTitle?.[lang] ?? ui['experience.tech']}>
-      {node.tech.map((t) => (
-        <li key={t}>{t}</li>
-      ))}
-    </ul>
+    <section className="case__stack">
+      <h4 className="case__label">{node.techTitle?.[lang] ?? ui['experience.tech']}</h4>
+      <dl>
+        {layers.map((l, i) => (
+          <div key={i}>
+            {l.layer && <dt>{l.layer[lang]}</dt>}
+            <dd>
+              <ul className="case__tech">
+                {l.items.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 
@@ -99,7 +189,7 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
   const projects = getChildren(group);
   const study = caseStudies[id] ?? {};
   const hasMedia = Boolean(study.media?.length);
-  const meta = [node.org ?? parent?.org, node.period?.[lang]].filter(Boolean).join(', ');
+  const meta = [getAffiliations(node).length ? null : (node.org ?? parent?.org), node.period?.[lang]].filter(Boolean).join(', ');
 
   // Hero route links point at #tab-<id>: select that stop on load and on every jump.
   useEffect(() => {
@@ -173,7 +263,7 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
           </div>
         )}
 
-        <div className="case__grid">
+        <div className={`case__head${hasMedia ? ' has-media' : ''}`}>
           <div>
             <p className="case__category">
               {parent ? `${ui['experience.subprojectOf']} ${parent.title[lang]}` : node.category[lang]}
@@ -184,15 +274,22 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
               {node.ongoing && <span className="case__badge">{ui['experience.ongoing']}</span>}
             </p>
             <p className="case__summary">{node.summary[lang]}</p>
-            {node.outcome && <p className="case__outcome">{node.outcome[lang]}</p>}
-            <Results study={study} lang={lang} ui={ui} />
+            <Affiliations node={node} lang={lang} ui={ui} />
             <Links study={study} ui={ui} />
           </div>
-          <div>{hasMedia ? <Screenshot study={study} lang={lang} /> : <Flow study={study} lang={lang} ui={ui} />}</div>
+          {hasMedia && <Screenshot study={study} lang={lang} />}
         </div>
 
-        {hasMedia && <Flow study={study} lang={lang} ui={ui} />}
-        <Tech node={node} lang={lang} ui={ui} />
+        <ResultsBand study={study} lang={lang} ui={ui} />
+
+        <div className="case__body">
+          <Story node={node} study={study} lang={lang} ui={ui} />
+          <aside className="case__rail">
+            <Stack node={node} study={study} lang={lang} ui={ui} />
+          </aside>
+        </div>
+
+        <Flow study={study} lang={lang} ui={ui} />
       </section>
     </div>
   );

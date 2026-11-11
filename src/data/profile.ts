@@ -1,4 +1,5 @@
 import type { Localized } from '../i18n/ui';
+import type { OrgId } from './orgs';
 
 export const profile = {
   name: 'Leonardo Sanner',
@@ -24,6 +25,7 @@ export interface Education {
   id: string;
   degree: Localized;
   institution: string;
+  orgs: OrgId[];
   period: Localized;
   note?: Localized;
 }
@@ -33,6 +35,7 @@ export const education: Education[] = [
     id: 'masters',
     degree: { en: "Master's degree", pt: 'Mestrado' },
     institution: 'UNIFESP / USP',
+    orgs: ['unifesp', 'usp'],
     period: { en: 'Since Aug 2026', pt: 'Desde ago. 2026' },
     note: {
       en: 'Petrobras-funded research on decision support for environmental impact assessment.',
@@ -43,12 +46,14 @@ export const education: Education[] = [
     id: 'it',
     degree: { en: "Bachelor's in Information Technology", pt: 'Bacharelado em Tecnologia da Informação' },
     institution: 'UNIVESP',
+    orgs: ['univesp'],
     period: { en: 'In progress', pt: 'Em andamento' },
   },
   {
     id: 'bct',
     degree: { en: "Bachelor's in Science and Technology", pt: 'Bacharelado em Ciência e Tecnologia' },
     institution: 'UNIFESP, Santos',
+    orgs: ['unifesp'],
     period: { en: '2023 – 2025', pt: '2023 – 2025' },
     note: {
       en: 'Petroleum Engineering track. GPA 9.1 / 10. Thesis: a text-mining system that recommends academic evaluators.',
