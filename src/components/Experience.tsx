@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { careerById, getAffiliations, getChildren, mainNodes, type CareerNode } from '../data/career';
 import type { OrgRole } from '../data/orgs';
 import OrgLogo from './OrgLogo';
-import { caseStudies, type CaseStudy } from '../data/case-studies';
+import { caseStudies, type CaseStudy, type Result, type Tone } from '../data/case-studies';
 import type { Locale, UIStrings } from '../i18n/ui';
 import FlowDiagram from './FlowDiagram';
+import IllustratedFlow from './IllustratedFlow';
 
 /**
  * Experience: a slim timeline of stops, and one case study at a time below it.
@@ -17,30 +18,85 @@ const DEFAULT_ID = 'trust-gtw';
 
 /* ---------- Pieces ---------- */
 
-function ResultsBand({ study, lang, ui }: { study: CaseStudy; lang: Locale; ui: UIStrings }) {
-  const figures = study.results ?? [];
-  const outcomes = study.outcomes ?? [];
-  if (!figures.length && !outcomes.length) return null;
+const Person = ({ lit }: { lit?: boolean }) => (
+  <svg viewBox="0 0 16 20" className={`person${lit ? ' is-lit' : ''}`} aria-hidden>
+    <circle cx="8" cy="5" r="4" />
+    <path d="M1 20v-3a7 7 0 0 1 14 0v3z" />
+  </svg>
+);
+
+/** One before/after result, drawn to scale. */
+function Compare({ r, lang, ui }: { r: Result; lang: Locale; ui: UIStrings }) {
+  const c = r.compare!;
+  const rows = [
+    { key: 'before', label: ui['experience.before'], text: r.before, n: c.from },
+    { key: 'now', label: ui['experience.now'], text: r.value, n: c.to },
+  ];
+  const max = Math.max(c.from, c.to);
   return (
-    <div className="case__results">
+    <div className="compare">
+      <p className="compare__head">
+        <span>{r.label[lang]}</span>
+        {r.gain && <strong className="compare__gain">{r.gain[lang]}</strong>}
+      </p>
+      {rows.map((row) => (
+        <div key={row.key} className={`compare__row is-${row.key}`}>
+          <span className="compare__when">{row.label}</span>
+          {c.kind === 'bar' ? (
+            <span className="compare__track" aria-hidden>
+              <span className="compare__bar" style={{ width: `${(row.n / max) * 100}%` }} />
+            </span>
+          ) : (
+            <span className="compare__people" aria-hidden>
+              {Array.from({ length: row.n }, (_, i) => (
+                <span key={i} style={{ animationDelay: `${i * 80}ms` }}>
+                  <Person lit={row.key === 'now'} />
+                </span>
+              ))}
+            </span>
+          )}
+          <span className="compare__value">{row.text}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ResultsBand({ study, lang, ui, side }: { study: CaseStudy; lang: Locale; ui: UIStrings; side?: boolean }) {
+  const all = study.results ?? [];
+  const compares = all.filter((r) => r.compare);
+  const figures = all.filter((r) => !r.compare);
+  const outcomes = study.outcomes ?? [];
+  if (!all.length && !outcomes.length) return null;
+  return (
+    <div className={`case__results${side ? ' case__results--side' : ''}`}>
       <h4 className="case__label">{ui['experience.results']}</h4>
-      {figures.length > 0 && (
-        <dl className="case__figures">
-          {figures.map((r) => (
-            <div key={r.value + r.label.en}>
-              <dt>{r.label[lang]}</dt>
-              <dd>{r.value}</dd>
-            </div>
+      {compares.length > 0 && (
+        <div className="case__compares">
+          {compares.map((r) => (
+            <Compare key={r.label.en} r={r} lang={lang} ui={ui} />
           ))}
-        </dl>
+        </div>
       )}
-      {outcomes.length > 0 && (
-        <ul className="case__outcomes">
-          {outcomes.map((o) => (
-            <li key={o.en}>{o[lang]}</li>
-          ))}
-        </ul>
-      )}
+      <div className="case__tail">
+        {figures.length > 0 && (
+          <dl className="case__figures">
+            {figures.map((r) => (
+              <div key={r.value + r.label.en}>
+                <dt>{r.label[lang]}</dt>
+                <dd>{r.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {outcomes.length > 0 && (
+          <ul className="case__outcomes">
+            {outcomes.map((o) => (
+              <li key={o.en}>{o[lang]}</li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -69,21 +125,38 @@ function Affiliations({ node, lang, ui }: { node: CareerNode; lang: Locale; ui: 
   );
 }
 
-function Story({ node, study, lang, ui }: { node: CareerNode; study: CaseStudy; lang: Locale; ui: UIStrings }) {
+function Problem({ study, lang, ui }: { study: CaseStudy; lang: Locale; ui: UIStrings }) {
+  if (!study.problem) return null;
+  return (
+    <section>
+      <h4 className="case__label">{study.problemLabel?.[lang] ?? ui['experience.problem']}</h4>
+      <p className="case__problem">{study.problem[lang]}</p>
+    </section>
+  );
+}
+
+function Story({
+  node,
+  study,
+  lang,
+  ui,
+  problemInHead,
+}: {
+  node: CareerNode;
+  study: CaseStudy;
+  lang: Locale;
+  ui: UIStrings;
+  problemInHead?: boolean;
+}) {
   const built = study.built?.[lang] ?? node.highlights[lang];
   const details = study.details?.[lang] ?? [];
   const planned = Boolean(study.flowPlanned);
   return (
     <div className="case__story">
-      {study.problem && (
-        <section>
-          <h4 className="case__label">{ui['experience.problem']}</h4>
-          <p className="case__problem">{study.problem[lang]}</p>
-        </section>
-      )}
+      {!problemInHead && <Problem study={study} lang={lang} ui={ui} />}
       {built.length > 0 && (
         <section>
-          <h4 className="case__label">{planned ? ui['experience.plannedScope'] : ui['experience.built']}</h4>
+          <h4 className="case__label">{planned ? ui['experience.plannedScope'] : (study.builtLabel?.[lang] ?? ui['experience.built'])}</h4>
           <ul className="case__built">
             {built.map((b) => (
               <li key={b}>{b}</li>
@@ -101,7 +174,111 @@ function Story({ node, study, lang, ui }: { node: CareerNode; study: CaseStudy; 
           </ul>
         </section>
       )}
+      <Reading study={study} ui={ui} />
     </div>
+  );
+}
+
+function ArchitectureDiagram({ study, lang, ui }: { study: CaseStudy; lang: Locale; ui: UIStrings }) {
+  const arch = study.architecture;
+  if (!arch) return null;
+  return (
+    <section className="arch">
+      <h4 className="case__label">{ui['experience.architecture']}</h4>
+      <ol className="arch__zones">
+        {arch.zones.map((z, i) => (
+          <li
+            key={z.label.en}
+            className={`arch__zone${z.private ? ' is-private' : ''}`}
+            style={{ '--tone': `var(--tone-${z.tone})`, '--tone-next': `var(--tone-${arch.zones[i + 1]?.tone ?? z.tone})` } as CSSProperties}
+          >
+            <p className="arch__zone-label">
+              {z.private && (
+                <svg viewBox="0 0 16 16" className="arch__lock" role="img" aria-label={ui['experience.private']}>
+                  <rect x="3" y="7" width="10" height="8" rx="2" />
+                  <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+                </svg>
+              )}
+              {z.label[lang]}
+            </p>
+            <ul className="arch__nodes">
+              {z.nodes.map((n) => (
+                <li key={n.label.en}>
+                  <span>{n.label[lang]}</span>
+                  {n.note && <em>{n.note}</em>}
+                </li>
+              ))}
+            </ul>
+            {i < arch.zones.length - 1 && (
+              <span className="arch__link" aria-hidden>
+                <span />
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+      {arch.services && (
+        <div className="arch__services">
+          <p>{ui['experience.services']}</p>
+          <ul>
+            {arch.services.map((n) => (
+              <li key={n.label.en}>
+                <span>{n.label[lang]}</span>
+                {n.note && <em>{n.note}</em>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Reading({ study, ui }: { study: CaseStudy; ui: UIStrings }) {
+  if (!study.references?.length) return null;
+  return (
+    <section className="case__reading">
+      <h4 className="case__label">{ui['experience.reading']}</h4>
+      <ul className="books">
+        {study.references.map((r, i) => {
+          const cover = (
+            <>
+              <span className="book__cover" aria-hidden>
+                <span className="book__spine" />
+                <span className="book__title">{r.title}</span>
+                <span className="book__marks">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </span>
+              <span className="book__meta">
+                <cite>{r.title}</cite>
+                <span>{r.authors}</span>
+                <em>
+                  {r.publisher}, {r.year}
+                </em>
+              </span>
+            </>
+          );
+          return (
+            <li
+              key={r.title}
+              className="book"
+              style={{ '--tone': `var(--tone-${r.tone ?? TONES[i % TONES.length]})` } as CSSProperties}
+            >
+              {r.url ? (
+                <a href={r.url} target="_blank" rel="noopener">
+                  {cover}
+                </a>
+              ) : (
+                <div>{cover}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 
@@ -135,7 +312,11 @@ function Flow({ study, lang, ui }: { study: CaseStudy; lang: Locale; ui: UIStrin
   return (
     <div className="case__flow">
       <p className="case__label">{label}</p>
-      <FlowDiagram steps={study.flow} lang={lang} label={label} />
+      {study.flow.some((s) => s.art) ? (
+        <IllustratedFlow steps={study.flow} lang={lang} label={label} mineLabel={ui['experience.myPart']} />
+      ) : (
+        <FlowDiagram steps={study.flow} lang={lang} label={label} />
+      )}
     </div>
   );
 }
@@ -153,15 +334,22 @@ function Links({ study, ui }: { study: CaseStudy; ui: UIStrings }) {
   );
 }
 
+const TONES: Tone[] = ['cyan', 'green', 'violet', 'amber', 'coral'];
+
 function Stack({ node, study, lang, ui }: { node: CareerNode; study: CaseStudy; lang: Locale; ui: UIStrings }) {
-  const layers = study.stack ?? (node.tech.length ? [{ layer: null, items: node.tech }] : []);
+  const layers: { layer: CaseStudy['problem'] | null; items: string[]; tone?: Tone }[] =
+    study.stack ?? (node.tech.length ? [{ layer: null, items: node.tech }] : []);
   if (!layers.length) return null;
   return (
     <section className="case__stack">
       <h4 className="case__label">{node.techTitle?.[lang] ?? ui['experience.tech']}</h4>
       <dl>
         {layers.map((l, i) => (
-          <div key={i}>
+          <div
+            key={i}
+            className={l.layer ? 'case__layer' : undefined}
+            style={l.layer ? ({ '--tone': `var(--tone-${l.tone ?? TONES[i % TONES.length]})` } as CSSProperties) : undefined}
+          >
             {l.layer && <dt>{l.layer[lang]}</dt>}
             <dd>
               <ul className="case__tech">
@@ -189,6 +377,9 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
   const projects = getChildren(group);
   const study = caseStudies[id] ?? {};
   const hasMedia = Boolean(study.media?.length);
+  const hasResults = Boolean(study.results?.length || study.outcomes?.length);
+  // Without a screenshot, results and organisations share the column beside the intro.
+  const sideResults = !hasMedia && hasResults;
   const meta = [getAffiliations(node).length ? null : (node.org ?? parent?.org), node.period?.[lang]].filter(Boolean).join(', ');
 
   // Hero route links point at #tab-<id>: select that stop on load and on every jump.
@@ -263,7 +454,7 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
           </div>
         )}
 
-        <div className={`case__head${hasMedia ? ' has-media' : ''}`}>
+        <div className={`case__head${hasMedia ? ' has-media' : hasResults ? ' has-results' : ''}`}>
           <div>
             <p className="case__category">
               {parent ? `${ui['experience.subprojectOf']} ${parent.title[lang]}` : node.category[lang]}
@@ -274,20 +465,33 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
               {node.ongoing && <span className="case__badge">{ui['experience.ongoing']}</span>}
             </p>
             <p className="case__summary">{node.summary[lang]}</p>
-            <Affiliations node={node} lang={lang} ui={ui} />
+            {sideResults && (
+              <div className="case__head-problem">
+                <Problem study={study} lang={lang} ui={ui} />
+              </div>
+            )}
+            {!sideResults && <Affiliations node={node} lang={lang} ui={ui} />}
             <Links study={study} ui={ui} />
           </div>
           {hasMedia && <Screenshot study={study} lang={lang} />}
+          {sideResults && (
+            <div className="case__side">
+              <ResultsBand study={study} lang={lang} ui={ui} side />
+              <Affiliations node={node} lang={lang} ui={ui} />
+            </div>
+          )}
         </div>
 
-        <ResultsBand study={study} lang={lang} ui={ui} />
+        {hasMedia && <ResultsBand study={study} lang={lang} ui={ui} />}
 
         <div className="case__body">
-          <Story node={node} study={study} lang={lang} ui={ui} />
+          <Story node={node} study={study} lang={lang} ui={ui} problemInHead={sideResults} />
           <aside className="case__rail">
             <Stack node={node} study={study} lang={lang} ui={ui} />
           </aside>
         </div>
+
+        <ArchitectureDiagram study={study} lang={lang} ui={ui} />
 
         <Flow study={study} lang={lang} ui={ui} />
       </section>

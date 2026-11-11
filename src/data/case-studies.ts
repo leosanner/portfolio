@@ -14,6 +14,14 @@ import type { Localized } from '../i18n/ui';
 export interface Result {
   /** The figure itself, e.g. "92%", "40+", "3×". */
   value: string;
+  /**
+   * Before/after comparison, drawn to scale. `from`/`to` are the raw numbers behind
+   * `before`/`value` (e.g. minutes). 'bar' draws two bars, 'people' draws person icons.
+   */
+  before?: string;
+  compare?: { from: number; to: number; kind: 'bar' | 'people' };
+  /** Short badge derived from the real numbers, e.g. "6× faster". */
+  gain?: Localized;
   label: Localized;
 }
 
@@ -25,10 +33,25 @@ export interface Media {
   poster?: string;
 }
 
+/** Colour family for a stack layer or flow stage. Defined as --tone-* in global.css. */
+export type Tone = 'cyan' | 'green' | 'violet' | 'amber' | 'coral';
+
+/** Drawings available to illustrated flows (see src/components/IllustratedFlow.tsx). */
+export type FlowArt =
+  | 'probe' | 'readings' | 'classify' | 'webapp'
+  | 'satellite' | 'structure' | 'split' | 'train' | 'forecast'
+  | 'upload' | 'gateway' | 'match' | 'report' | 'portal';
+
 export interface FlowStep {
   label: Localized;
   /** Small technical note under the label, e.g. the tool used. */
   note?: string;
+  /** Illustrated flows only: a drawing, a colour, a one-line explanation. */
+  art?: FlowArt;
+  tone?: Tone;
+  caption?: Localized;
+  /** Marks the steps Leo was personally responsible for. */
+  mine?: boolean;
 }
 
 export interface CaseLink {
@@ -39,9 +62,47 @@ export interface CaseLink {
 export interface StackLayer {
   layer: Localized;
   items: string[];
+  /** Colour of the layer card. Cycles through the palette when omitted. */
+  tone?: Tone;
+}
+
+export interface Reference {
+  title: string;
+  authors: string;
+  publisher: string;
+  year: number;
+  url?: string;
+  tone?: Tone;
+}
+
+export interface ArchNode {
+  label: Localized;
+  note?: string;
+}
+
+/** One box of the architecture diagram: a place where services run. */
+export interface ArchZone {
+  label: Localized;
+  tone: Tone;
+  /** Shows a lock: the zone is not reachable from the internet. */
+  private?: boolean;
+  nodes: ArchNode[];
+}
+
+export interface Architecture {
+  /** Zones in request order, left to right. */
+  zones: ArchZone[];
+  /** Managed services the system relies on, shown under the zones. */
+  services?: ArchNode[];
 }
 
 export interface CaseStudy {
+  architecture?: Architecture;
+  /** Override the "The problem" / "What I built" headings, e.g. for a study rather than a build. */
+  problemLabel?: Localized;
+  builtLabel?: Localized;
+  /** Books and papers the work was grounded in. */
+  references?: Reference[];
   /** Numeric results. Real figures only. */
   results?: Result[];
   /** Qualitative results, stated plainly. */
@@ -63,7 +124,7 @@ export interface CaseStudy {
 
 const s = (en: string, pt: string = en): Localized => ({ en, pt });
 const list = (en: string[], pt: string[]): Localized<string[]> => ({ en, pt });
-const layer = (en: string, pt: string, items: string[]): StackLayer => ({ layer: s(en, pt), items });
+const layer = (en: string, pt: string, items: string[], tone?: Tone): StackLayer => ({ layer: s(en, pt), items, tone });
 
 export const caseStudies: Record<string, CaseStudy> = {
   'water-quality': {
@@ -71,28 +132,158 @@ export const caseStudies: Record<string, CaseStudy> = {
       'Water quality in the Port of Santos needed a low-cost way to be measured and classified.',
       'A qualidade da água no Porto de Santos precisava de uma forma de baixo custo para ser medida e classificada.',
     ),
+    built: list(
+      [
+        'Collected the sensor readings in the Port of Santos and prepared them as a training dataset',
+        'Trained machine learning models that classify the water into quality groups',
+        'Built the web application that presents the classification results',
+      ],
+      [
+        'Coletei as leituras dos sensores no Porto de Santos e as preparei como base de treino',
+        'Treinei modelos de machine learning que classificam a água em grupos de qualidade',
+        'Construí a aplicação web que apresenta os resultados da classificação',
+      ],
+    ),
     stack: [
-      layer('Hardware', 'Hardware', ['Arduino', 'C++']),
-      layer('Data and ML', 'Dados e ML', ['Python', 'pandas', 'scikit-learn']),
-      layer('Interface', 'Interface', ['Streamlit', 'Matplotlib']),
+      layer('Sensors and hardware', 'Sensores e hardware', ['Arduino', 'C++', 'pH sensor', 'Serial data logging'], 'cyan'),
+      layer('Data collection', 'Coleta de dados', ['Python', 'pandas', 'NumPy', 'Jupyter', 'CSV'], 'green'),
+      layer('Machine learning', 'Machine learning', ['scikit-learn', 'Classification', 'Model evaluation'], 'violet'),
+      layer('Web application', 'Aplicação web', ['Streamlit', 'Matplotlib'], 'amber'),
     ],
     flow: [
-      { label: s('Sensor probe', 'Sonda de sensores'), note: 'Arduino, C++' },
-      { label: s('pH and water readings', 'pH e leituras da água') },
-      { label: s('Quality classification', 'Classificação da qualidade'), note: 'scikit-learn' },
-      { label: s('Results dashboard', 'Painel de resultados'), note: 'Streamlit' },
+      {
+        art: 'probe',
+        tone: 'cyan',
+        label: s('Sensors in the water', 'Sensores na água'),
+        note: 'Arduino, C++',
+        caption: s(
+          'Sensor probes developed by the team take pH and water readings in the Port of Santos.',
+          'Sondas de sensores desenvolvidas pela equipe fazem leituras de pH e da água no Porto de Santos.',
+        ),
+      },
+      {
+        art: 'readings',
+        tone: 'green',
+        mine: true,
+        label: s('Data collection', 'Coleta de dados'),
+        note: 'Python, pandas',
+        caption: s(
+          'The readings are collected, cleaned and organised into a dataset.',
+          'As leituras são coletadas, limpas e organizadas em uma base de dados.',
+        ),
+      },
+      {
+        art: 'classify',
+        tone: 'violet',
+        mine: true,
+        label: s('Model training', 'Treino dos modelos'),
+        note: 'scikit-learn',
+        caption: s(
+          'Machine learning models learn to sort each sample into a water quality group.',
+          'Modelos de machine learning aprendem a separar cada amostra em um grupo de qualidade da água.',
+        ),
+      },
+      {
+        art: 'webapp',
+        tone: 'amber',
+        mine: true,
+        label: s('Web application', 'Aplicação web'),
+        note: 'Streamlit',
+        caption: s(
+          'A web app shows the classification results in a way anyone can read.',
+          'Uma aplicação web mostra os resultados da classificação de forma que qualquer pessoa entenda.',
+        ),
+      },
     ],
   },
   'ocean-forecasting': {
+    outcomes: [
+      s(
+        'A solid grounding in how machine learning models work, from the mathematics up.',
+        'Uma base sólida de como os modelos de machine learning funcionam, a partir da matemática.',
+      ),
+      s(
+        'Hands-on practice with the full life cycle: raw data to trained, tested model.',
+        'Prática com o ciclo de vida completo: dos dados brutos ao modelo treinado e testado.',
+      ),
+    ],
+    problemLabel: s('The goal', 'O objetivo'),
+    builtLabel: s('What I studied and did', 'O que estudei e fiz'),
+    problem: s(
+      'Understand the mathematics and statistics behind machine learning, and apply them to forecasting extreme ocean events.',
+      'Entender a matemática e a estatística por trás do machine learning e aplicá-las à previsão de eventos oceânicos extremos.',
+    ),
+    built: list(
+      [
+        'Studied the mathematics behind machine learning: linear algebra, calculus, probability and optimisation',
+        'Studied how different statistical learning models work and how they are trained and evaluated',
+        'Applied the full life cycle to extreme ocean events: raw NASA and scientific data, processing, train/test split, training and testing',
+      ],
+      [
+        'Estudei a matemática por trás do machine learning: álgebra linear, cálculo, probabilidade e otimização',
+        'Estudei como diferentes modelos de aprendizado estatístico funcionam e como são treinados e avaliados',
+        'Apliquei o ciclo de vida completo a eventos oceânicos extremos: dados brutos da NASA e científicos, processamento, divisão treino/teste, treino e teste',
+      ],
+    ),
+    references: [
+      {
+        title: 'Mathematics for Machine Learning',
+        authors: 'M. P. Deisenroth, A. A. Faisal, C. S. Ong',
+        publisher: 'Cambridge University Press',
+        year: 2020,
+        url: 'https://mml-book.github.io/',
+        tone: 'cyan',
+      },
+      {
+        title: 'An Introduction to Statistical Learning',
+        authors: 'G. James, D. Witten, T. Hastie, R. Tibshirani',
+        publisher: 'Springer',
+        year: 2021,
+        url: 'https://www.statlearning.com/',
+        tone: 'violet',
+      },
+    ],
     stack: [
-      layer('Data', 'Dados', ['Python', 'Jupyter']),
-      layer('Models', 'Modelos', ['PyTorch', 'TensorFlow', 'scikit-learn']),
+      layer('Mathematical foundations', 'Fundamentos matemáticos', ['Linear algebra', 'Calculus', 'Probability', 'Optimisation'], 'cyan'),
+      layer('Statistical learning', 'Aprendizado estatístico', ['Regression', 'Classification', 'Train/test split', 'Model evaluation'], 'violet'),
+      layer('Data', 'Dados', ['NASA data', 'Python', 'Jupyter', 'pandas'], 'green'),
+      layer('Models', 'Modelos', ['scikit-learn', 'PyTorch', 'TensorFlow'], 'amber'),
+      layer('Cloud (Azure)', 'Nuvem (Azure)', ['Azure Blob Storage', 'Azure Machine Learning', 'Azure ML Notebooks', 'Azure ML Endpoints'], 'coral'),
     ],
     flow: [
-      { label: s('Scientific and NASA data', 'Dados científicos e da NASA') },
-      { label: s('Integration and preprocessing', 'Integração e pré-processamento'), note: 'pandas' },
-      { label: s('Model experiments', 'Experimentos com modelos'), note: 'PyTorch, TensorFlow' },
-      { label: s('Extreme event forecasts', 'Previsão de eventos extremos') },
+      {
+        art: 'satellite',
+        tone: 'cyan',
+        label: s('Raw data', 'Dados brutos'),
+        note: 'NASA, scientific datasets',
+        caption: s('Ocean observations collected from NASA and scientific sources.', 'Observações do oceano coletadas da NASA e de fontes científicas.'),
+      },
+      {
+        art: 'structure',
+        tone: 'green',
+        label: s('Processing', 'Processamento'),
+        note: 'Python, pandas',
+        caption: s('Raw files are cleaned and turned into structured, consistent tables.', 'Arquivos brutos são limpos e transformados em tabelas estruturadas e consistentes.'),
+      },
+      {
+        art: 'split',
+        tone: 'violet',
+        label: s('Train / test split', 'Divisão treino / teste'),
+        caption: s('The data is split so models are tested on samples they never saw.', 'Os dados são divididos para que os modelos sejam testados em amostras que nunca viram.'),
+      },
+      {
+        art: 'train',
+        tone: 'amber',
+        label: s('Training', 'Treino'),
+        note: 'scikit-learn, PyTorch, TensorFlow',
+        caption: s('Models learn by minimising their error, step by step.', 'Os modelos aprendem minimizando o erro, passo a passo.'),
+      },
+      {
+        art: 'forecast',
+        tone: 'coral',
+        label: s('Extreme event forecast', 'Previsão de eventos extremos'),
+        caption: s('The tested model flags values that cross an extreme threshold.', 'O modelo testado sinaliza valores que ultrapassam um limiar extremo.'),
+      },
     ],
   },
   petrobras: {
@@ -227,53 +418,148 @@ export const caseStudies: Record<string, CaseStudy> = {
     links: [{ kind: 'live', url: 'https://resultados-aia.vercel.app/' }],
   },
   healthcare: {
-    outcomes: [
-      s('A reporting process that used to be manual now runs automatically.', 'Um processo de relatórios antes manual agora roda de forma automática.'),
-      s('Less manual rework and more consistent documents.', 'Menos retrabalho manual e documentos mais padronizados.'),
-      s('Room for a higher volume of work.', 'Espaço para um volume maior de atendimentos.'),
+    results: [
+      {
+        before: '3h',
+        value: '30 min',
+        label: s('Time to produce a report', 'Tempo para produzir um relatório'),
+        compare: { from: 180, to: 30, kind: 'bar' },
+        gain: s('6× faster', '6× mais rápido'),
+      },
+      {
+        before: '5',
+        value: '1',
+        label: s('Professionals per task', 'Profissionais por tarefa'),
+        compare: { from: 5, to: 1, kind: 'people' },
+        gain: s('5× fewer', '5× menos'),
+      },
+      { value: '300+', label: s('users', 'usuários') },
     ],
+    outcomes: [s('The whole process in one place.', 'Todo o processo em um só lugar.')],
     problem: s(
-      'The clinic produced its reports by hand from PDFs, text files, forms and spreadsheets, and its day-to-day information was spread across tools.',
-      'A clínica produzia relatórios manualmente a partir de PDFs, arquivos de texto, formulários e planilhas, e suas informações do dia a dia estavam espalhadas em várias ferramentas.',
+      'Staff took raw output files from specialised assessment equipment and turned them by hand into personalised client reports and treatment plans. It was slow, manual work.',
+      'A equipe pegava arquivos brutos de equipamentos especializados de avaliação e os transformava à mão em relatórios e planos de tratamento personalizados. Era um trabalho lento e manual.',
     ),
     built: list(
       [
-        'A management system that brings admin routines, the client interface and internal information into one app',
-        'A Go REST API on PostgreSQL/Neon in production, with authentication through Clerk',
-        'Python and Streamlit flows that extract, filter and standardise data from PDFs, TXT files, Google Forms and Google Sheets',
-        'Automatic final reports in DOCX, generated from templates',
+        'Automated report generation: upload the device exports, get a branded Word report',
+        'Self-service reference catalogs that the clinic edits itself, with normalisation and health checks',
+        'Per-clinic pricing catalogs and reusable treatment-plan presets',
+        'Room rental scheduling, with protection enforced by the database',
+        'A client portal with invitation-based onboarding and email notifications',
+        'Report template management: staff upload and pick the templates used',
+        'Role-based access for admins, operators and clients',
       ],
       [
-        'Sistema de gestão que reúne rotinas administrativas, interface para clientes e informações internas em uma só aplicação',
-        'API REST em Go sobre PostgreSQL/Neon em produção, com autenticação via Clerk',
-        'Fluxos em Python e Streamlit que extraem, filtram e padronizam dados de PDFs, arquivos TXT, Google Forms e Google Sheets',
-        'Relatórios finais automáticos em DOCX, gerados a partir de templates',
+        'Geração automática de relatórios: envie os arquivos do equipamento e receba um relatório Word personalizado',
+        'Catálogos de referência editados pela própria clínica, com normalização e verificações de saúde',
+        'Catálogos de preços por clínica e modelos reutilizáveis de plano de tratamento',
+        'Agenda de aluguel de salas, com proteções garantidas pelo banco de dados',
+        'Portal do cliente com cadastro por convite e notificações por e-mail',
+        'Gestão de templates de relatório: a equipe envia e escolhe os templates usados',
+        'Acesso por papéis para administradores, operadores e clientes',
       ],
     ),
     details: list(
       [
-        'React and Vite frontend on Cloudflare Pages',
-        'Backend on a VPS behind Caddy for reverse proxy and HTTPS',
-        'Internal service that emails system status and health',
+        'API-first: typed frontend clients generated from the OpenAPI spec, which the Go gateway generates from code',
+        'Hexagonal (ports and adapters) Go gateway split into vertical modules, with role guards that deny by default',
+        'The processing engine runs on a private network only and is never exposed to the internet',
+        'Data quality as a feature: normalisation layers, idempotent migrations and staging checks before every release',
+        'CI enforces linting, strict types (mypy strict, tsc -b), migrations on a real Postgres and OpenAPI drift checks',
+        'AI-assisted development, with agent workflows coordinated across parallel tasks',
+        'Three services in one monorepo, about 220 test suites, 17 architecture decision records and 20+ PRDs',
       ],
       [
-        'Frontend em React e Vite no Cloudflare Pages',
-        'Backend em VPS atrás do Caddy, com proxy reverso e HTTPS',
-        'Serviço interno que envia e-mails de status e saúde do sistema',
+        'API-first: clientes tipados no frontend gerados a partir da especificação OpenAPI, que o gateway em Go gera a partir do código',
+        'Gateway em Go hexagonal (ports and adapters), dividido em módulos verticais, com guardas de papel que negam por padrão',
+        'O motor de processamento roda apenas em rede privada e nunca fica exposto à internet',
+        'Qualidade de dados como funcionalidade: camadas de normalização, migrações idempotentes e verificação em staging antes de cada release',
+        'O CI exige lint, tipagem estrita (mypy strict, tsc -b), migrações em um Postgres real e checagem de divergência do OpenAPI',
+        'Desenvolvimento assistido por IA, com fluxos de agentes coordenados em tarefas paralelas',
+        'Três serviços em um monorepo, cerca de 220 suítes de teste, 17 registros de decisão de arquitetura e mais de 20 PRDs',
       ],
     ),
     stack: [
-      layer('Frontend', 'Frontend', ['React', 'Vite', 'TypeScript']),
-      layer('Backend', 'Backend', ['Go', 'Python', 'FastAPI', 'Clerk']),
-      layer('Data and documents', 'Dados e documentos', ['PostgreSQL', 'Neon', 'AWS S3', 'DocxTemplate', 'Streamlit']),
-      layer('Infrastructure', 'Infraestrutura', ['Cloudflare Pages', 'VPS', 'Caddy', 'GitHub Actions']),
+      layer('Frontend', 'Frontend', ['React 19', 'TypeScript', 'Vite', 'TanStack Router', 'TanStack Query', 'Tailwind CSS v4', 'openapi-typescript', 'dnd-kit'], 'cyan'),
+      layer('API gateway', 'API gateway', ['Go', 'chi', 'swaggest', 'Swagger UI', 'Clerk'], 'violet'),
+      layer('Processing engine', 'Motor de processamento', ['Python', 'FastAPI', 'pdfplumber', 'RapidFuzz', 'DOCX templates', 'Google Sheets'], 'green'),
+      layer('Data', 'Dados', ['PostgreSQL', 'SQLAlchemy 2', 'Alembic', 'Cloudflare R2'], 'amber'),
+      layer('Infrastructure', 'Infraestrutura', ['Docker', 'Caddy', 'VPS', 'Cloudflare Pages', 'GitHub Actions', 'Resend'], 'coral'),
     ],
+    architecture: {
+      zones: [
+        {
+          label: s('Cloudflare Pages', 'Cloudflare Pages'),
+          tone: 'cyan',
+          nodes: [{ label: s('Web app (SPA)', 'Aplicação web (SPA)'), note: 'React, TanStack' }],
+        },
+        {
+          label: s('VPS, public', 'VPS, pública'),
+          tone: 'violet',
+          nodes: [
+            { label: s('Reverse proxy, automatic TLS', 'Proxy reverso, TLS automático'), note: 'Caddy' },
+            { label: s('API gateway', 'API gateway'), note: 'Go, chi' },
+          ],
+        },
+        {
+          label: s('VPS, private network', 'VPS, rede privada'),
+          tone: 'green',
+          private: true,
+          nodes: [{ label: s('Processing engine', 'Motor de processamento'), note: 'FastAPI, pdfplumber, RapidFuzz' }],
+        },
+        {
+          label: s('Data', 'Dados'),
+          tone: 'amber',
+          nodes: [
+            { label: s('Database', 'Banco de dados'), note: 'PostgreSQL' },
+            { label: s('Report templates', 'Templates de relatório'), note: 'Cloudflare R2' },
+            { label: s('Spreadsheets', 'Planilhas'), note: 'Google Sheets' },
+          ],
+        },
+      ],
+      services: [
+        { label: s('Auth and roles', 'Autenticação e papéis'), note: 'Clerk' },
+        { label: s('Email', 'E-mail'), note: 'Resend' },
+        { label: s('CI/CD, Docker images', 'CI/CD, imagens Docker'), note: 'GitHub Actions' },
+      ],
+    },
     flow: [
-      { label: s('Clinic web app', 'App web da clínica'), note: 'React, Cloudflare Pages' },
-      { label: s('HTTPS proxy', 'Proxy HTTPS'), note: 'Caddy' },
-      { label: s('REST API', 'API REST'), note: 'Go' },
-      { label: s('Report service', 'Serviço de relatórios'), note: 'Python' },
-      { label: s('DOCX reports and files', 'Relatórios DOCX e arquivos'), note: 'PostgreSQL, S3' },
+      {
+        art: 'upload',
+        tone: 'cyan',
+        label: s('Upload device exports', 'Envio dos arquivos'),
+        note: 'React, dnd-kit',
+        caption: s('Operators drop in the raw files exported by the assessment equipment.', 'Operadores enviam os arquivos brutos exportados pelo equipamento de avaliação.'),
+      },
+      {
+        art: 'gateway',
+        tone: 'violet',
+        label: s('Secure gateway', 'Gateway seguro'),
+        note: 'Go, chi, Clerk',
+        caption: s('The Go gateway authenticates each request and checks its role, denying by default.', 'O gateway em Go autentica cada requisição e verifica o papel, negando por padrão.'),
+      },
+      {
+        art: 'match',
+        tone: 'green',
+        label: s('Parse and match', 'Leitura e correspondência'),
+        note: 'FastAPI, pdfplumber, RapidFuzz',
+        caption: s('The private engine reads the exports and matches them against the clinic’s reference catalog.', 'O motor privado lê os arquivos e os compara com o catálogo de referência da clínica.'),
+      },
+      {
+        art: 'report',
+        tone: 'amber',
+        label: s('Branded report', 'Relatório personalizado'),
+        note: 'DOCX templates, R2',
+        caption: s('A Word report is generated from the clinic’s own template.', 'Um relatório Word é gerado a partir do template da própria clínica.'),
+      },
+      {
+        art: 'portal',
+        tone: 'coral',
+        label: s('Client portal', 'Portal do cliente'),
+        note: 'Resend',
+        caption: s('Clients join the portal by invitation and get email notifications.', 'Clientes entram no portal por convite e recebem notificações por e-mail.'),
+      },
     ],
   },
   thesis: {
