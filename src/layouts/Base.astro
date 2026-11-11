@@ -1,0 +1,66 @@
+---
+import '../styles/global.css';
+import { locales, t, type Locale } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const tr = t(lang);
+const title = `${profile.name}, ${profile.headline[lang].toLowerCase()}`;
+---
+
+<html lang={lang === 'pt' ? 'pt-BR' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={profile.bio[lang]} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={profile.bio[lang]} />
+    <meta name="theme-color" content="#EDF2F1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0B1D29" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" hreflang="en" href="/en/" />
+    <link rel="alternate" hreflang="pt-BR" href="/pt/" />
+    <link rel="alternate" hreflang="x-default" href="/en/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Source+Serif+4:ital,opsz,wght@1,8..60,400;1,8..60,500&display=swap"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="topbar">
+      <a href={`/${lang}/`} class="topbar__name">{profile.name}</a>
+      <nav class="topbar__nav" aria-label="Main">
+        <a href="#experience">{tr('nav.experience')}</a>
+        <a href="#education">{tr('nav.education')}</a>
+        <a href="#contact">{tr('nav.contact')}</a>
+      </nav>
+      <nav class="lang" aria-label={tr('nav.language')}>
+        {
+          locales.map((l) => (
+            <a
+              href={`/${l}/`}
+              hreflang={l === 'pt' ? 'pt-BR' : 'en'}
+              aria-current={l === lang ? 'true' : undefined}
+              lang={l === 'pt' ? 'pt-BR' : 'en'}
+            >
+              {l === 'en' ? 'EN' : 'PT'}
+            </a>
+          ))
+        }
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="footer">
+      <p>© {new Date().getFullYear()} {profile.name}. {tr('footer.built')}</p>
+    </footer>
+  </body>
+</html>

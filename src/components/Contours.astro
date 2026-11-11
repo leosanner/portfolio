@@ -1,0 +1,54 @@
+---
+/**
+ * Bathymetric contour lines, generated at build time (deterministic, no JS shipped).
+ * Two "seamounts" with wobbly concentric isolines, drawn in once on load.
+ */
+interface Mount {
+  cx: number;
+  cy: number;
+  rings: number;
+  step: number;
+  seed: number;
+}
+
+const mounts: Mount[] = [
+  { cx: 640, cy: 230, rings: 11, step: 30, seed: 1.7 },
+  { cx: 1010, cy: 470, rings: 6, step: 26, seed: 4.2 },
+];
+
+function ring({ cx, cy, seed }: Mount, r: number, k: number) {
+  const pts: [number, number][] = [];
+  const n = 96;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const wobble =
+      0.12 * Math.sin(3 * a + seed + k * 0.35) +
+      0.07 * Math.sin(5 * a - seed * 1.3 + k * 0.2) +
+      0.04 * Math.sin(9 * a + seed * 2.1);
+    const rr = r * (1 + wobble);
+    pts.push([cx + rr * Math.cos(a) * 1.35, cy + rr * Math.sin(a)]);
+  }
+  return 'M' + pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L') + 'Z';
+}
+
+const paths = mounts.flatMap((m) =>
+  Array.from({ length: m.rings }, (_, k) => ({
+    d: ring(m, 18 + k * m.step, k),
+    major: k % 5 === 4,
+    delay: k * 90 + (m.seed > 3 ? 400 : 0),
+  })),
+);
+---
+
+<svg class="contours" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  {
+    paths.map((p) => (
+      <path
+        d={p.d}
+        pathLength="1"
+        class:list={['contour', { 'contour--major': p.major }]}
+        style={`animation-delay:${p.delay}ms`}
+      />
+    ))
+  }
+</svg>
