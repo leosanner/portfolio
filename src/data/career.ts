@@ -22,10 +22,7 @@ export interface CareerNode {
   highlights: Localized<string[]>;
   techTitle?: Localized;
   tech: string[];
-  links?: { label: Localized; url: string }[];
 }
-
-const liveSite: Localized = { en: 'Open live site', pt: 'Abrir site' };
 
 export const mainNodes: CareerNode[] = [
   {
@@ -143,7 +140,6 @@ export const mainNodes: CareerNode[] = [
       pt: ['Gráficos e estatísticas interativos', 'Exploração geoespacial', 'Área administrativa com auditoria e cadastro de dados'],
     },
     tech: ['Next.js', 'TypeScript', 'PostgreSQL', 'Neon', 'Vercel'],
-    links: [{ label: liveSite, url: 'https://projeto-oceano-five.vercel.app/' }],
   },
   {
     id: 'trust-gtw',
@@ -244,7 +240,6 @@ export const subprojectNodes: CareerNode[] = [
       pt: ['Grafos de conhecimento', 'Gráficos interativos', 'Pipelines de processamento em segundo plano'],
     },
     tech: ['Next.js', 'TypeScript', 'PostgreSQL', 'Inngest'],
-    links: [{ label: liveSite, url: 'https://resultados-aia.vercel.app/' }],
   },
 ];
 
@@ -256,19 +251,3 @@ export function getChildren(node: CareerNode): CareerNode[] {
   return (node.childIds ?? []).map((id) => careerById[id]).filter(Boolean);
 }
 
-/**
- * Two parallel tracks for the experience diagram. Columns follow the story order
- * of `mainNodes` (not calendar dates); the route line crosses between tracks.
- */
-export const lanes: { id: string; title: Localized; nodeIds: string[] }[] = [
-  {
-    id: 'research',
-    title: { en: 'Research', pt: 'Pesquisa' },
-    nodeIds: ['water-quality', 'ocean-forecasting', 'petrobras', 'thesis', 'masters'],
-  },
-  {
-    id: 'software',
-    title: { en: 'Software', pt: 'Software' },
-    nodeIds: ['healthcare', 'research-portal', 'trust-gtw'],
-  },
-];

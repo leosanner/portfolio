@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import CareerLanes from '../../components/CareerLanes';
+import Experience from '../../components/Experience';
 import { locales, t, ui, type Locale } from '../../i18n/ui';
 import { profile, education } from '../../data/profile';
 
@@ -32,7 +32,7 @@ const tr = t(lang);
       <h2>{tr('experience.title')}</h2>
       <p>{tr('experience.intro')}</p>
     </div>
-    <CareerLanes client:visible lang={lang} ui={ui[lang]} />
+    <Experience client:visible lang={lang} ui={ui[lang]} />
   </section>
 
   <section id="education" class="section">
