@@ -43,7 +43,9 @@ export type FlowArt =
   | 'upload' | 'gateway' | 'match' | 'report' | 'portal'
   | 'library' | 'screen' | 'ask' | 'explore'
   | 'pipeline' | 'tfidf' | 'tune' | 'confusion' | 'infer'
-  | 'vote' | 'filters' | 'curated';
+  | 'vote' | 'filters' | 'curated'
+  | 'form' | 'cosine' | 'rank'
+  | 'stats';
 
 export interface FlowStep {
   label: Localized;
@@ -719,7 +721,6 @@ export const caseStudies: Record<string, CaseStudy> = {
     ],
   },
   thesis: {
-    outcomes: [s('Delivered in January 2026.', 'Entregue em janeiro de 2026.')],
     problem: s(
       'Finding suitable evaluators for a thesis means matching its subject against many researchers by hand.',
       'Encontrar avaliadores adequados para um trabalho exige comparar o tema com muitos pesquisadores manualmente.',
@@ -739,20 +740,54 @@ export const caseStudies: Record<string, CaseStudy> = {
       ['Vetores TF-IDF comparados por similaridade do cosseno', 'Recomendação baseada em conteúdo, sem depender de histórico de usuários'],
     ),
     stack: [
-      layer('Text mining', 'Mineração de texto', ['Python', 'scikit-learn', 'TF-IDF', 'Cosine similarity']),
-      layer('App', 'Aplicação', ['FastAPI', 'Next.js']),
+      layer('Text mining', 'Mineração de texto', ['Python', 'scikit-learn', 'TF-IDF'], 'violet'),
+      layer('Recommendation', 'Recomendação', ['Cosine similarity', 'Content-based ranking'], 'green'),
+      layer('API', 'API', ['FastAPI'], 'cyan'),
+      layer('Web app', 'Aplicação web', ['Next.js'], 'amber'),
     ],
     flow: [
-      { label: s('Title, abstract, keywords', 'Título, resumo, palavras-chave') },
-      { label: s('TF-IDF vectors', 'Vetores TF-IDF') },
-      { label: s('Cosine similarity', 'Similaridade do cosseno') },
-      { label: s('Ranked evaluators', 'Avaliadores ranqueados'), note: 'FastAPI, Next.js' },
+      {
+        art: 'form',
+        tone: 'cyan',
+        label: s('Thesis details', 'Dados do trabalho'),
+        note: 'Next.js',
+        caption: s('The title, abstract and keywords go in.', 'Entram o título, o resumo e as palavras-chave.'),
+      },
+      {
+        art: 'library',
+        tone: 'coral',
+        label: s('Researchers’ work', 'Produção dos pesquisadores'),
+        caption: s('Each candidate evaluator is described by their own work.', 'Cada avaliador candidato é descrito pela própria produção.'),
+      },
+      {
+        art: 'tfidf',
+        tone: 'violet',
+        label: s('TF-IDF vectors', 'Vetores TF-IDF'),
+        note: 'scikit-learn',
+        caption: s('Both sides become vectors of weighted terms.', 'Os dois lados viram vetores de termos ponderados.'),
+      },
+      {
+        art: 'cosine',
+        tone: 'green',
+        label: s('Cosine similarity', 'Similaridade do cosseno'),
+        note: 'Python',
+        caption: s('The smaller the angle between two vectors, the closer the subjects.', 'Quanto menor o ângulo entre dois vetores, mais próximos os temas.'),
+      },
+      {
+        art: 'rank',
+        tone: 'amber',
+        label: s('Ranked evaluators', 'Avaliadores ranqueados'),
+        note: 'FastAPI, Next.js',
+        caption: s('A ranked list of evaluators, with references.', 'Uma lista ranqueada de avaliadores, com referências.'),
+      },
     ],
   },
   'research-portal': {
+    results: [{ value: '200+', label: s('documents managed in the admin panel', 'documentos gerenciados no painel administrativo') }],
     outcomes: [
-      s('Information that was scattered now lives in one structured, maintained base.', 'Informações antes dispersas agora ficam em uma base estruturada e mantida.'),
-      s('Running in production on Vercel.', 'Em produção na Vercel.'),
+      s('Information that was scattered now lives in one structured, maintained catalog.', 'Informações antes dispersas agora ficam em um catálogo estruturado e mantido.'),
+      s('Statistics, graphs and illustrated results update as new data comes in.', 'Estatísticas, grafos e resultados ilustrados se atualizam conforme novos dados entram.'),
+      s('Each sector has its own view of the data.', 'Cada setor tem sua própria visão dos dados.'),
     ],
     problem: s(
       'An educational institution’s research records and documents were scattered and hard to explore publicly.',
@@ -760,21 +795,39 @@ export const caseStudies: Record<string, CaseStudy> = {
     ),
     built: list(
       [
+        'An admin panel where staff add, review and edit records and documents',
+        'A data catalog that organises everything by sector',
+        'Role-based access control for who can see and change what',
+        'Data pipelines that sanitise inserted content before it is exposed publicly',
+        'A dynamic statistics page, graph data and illustrated results that follow the data',
         'Public pages with interactive maps, charts, filters and data downloads',
-        'An admin area to add, review and edit records and documents',
-        'User management and document organisation',
       ],
       [
+        'Painel administrativo onde a equipe insere, revisa e edita registros e documentos',
+        'Catálogo de dados que organiza tudo por setor',
+        'Controle de acesso por papéis para definir quem vê e altera o quê',
+        'Pipelines de dados que saneiam o conteúdo inserido antes de expô-lo publicamente',
+        'Página de estatísticas dinâmica, dados em grafo e resultados ilustrados que acompanham os dados',
         'Páginas públicas com mapas, gráficos, filtros e download de dados',
-        'Área administrativa para inserir, revisar e editar registros e documentos',
-        'Gestão de usuários e organização documental',
       ],
     ),
-    details: list(['Audit trail on data entry'], ['Auditoria no cadastro de dados']),
+    details: list(
+      [
+        'Audit trail on data entry',
+        'CI/CD with GitHub Actions',
+        'AI-assisted development workflow',
+      ],
+      [
+        'Auditoria no cadastro de dados',
+        'CI/CD com GitHub Actions',
+        'Fluxo de desenvolvimento assistido por IA',
+      ],
+    ),
     stack: [
-      layer('App', 'Aplicação', ['Next.js', 'TypeScript']),
-      layer('Data', 'Dados', ['PostgreSQL', 'Neon']),
-      layer('Hosting', 'Hospedagem', ['Vercel']),
+      layer('App', 'Aplicação', ['Next.js', 'TypeScript'], 'cyan'),
+      layer('Data', 'Dados', ['Prisma', 'PostgreSQL', 'Neon'], 'violet'),
+      layer('Delivery', 'Entrega', ['GitHub Actions', 'CI/CD', 'Vercel'], 'green'),
+      layer('Workflow', 'Fluxo de trabalho', ['AI-assisted development'], 'amber'),
     ],
     media: [
       {
@@ -787,10 +840,40 @@ export const caseStudies: Record<string, CaseStudy> = {
       },
     ],
     flow: [
-      { label: s('Research data entry', 'Cadastro de dados de pesquisa') },
-      { label: s('Admin and audit', 'Administração e auditoria') },
-      { label: s('Database', 'Banco de dados'), note: 'PostgreSQL, Neon' },
-      { label: s('Maps, charts, downloads', 'Mapas, gráficos, downloads'), note: 'Next.js, Vercel' },
+      {
+        art: 'upload',
+        tone: 'cyan',
+        label: s('Admin panel', 'Painel administrativo'),
+        note: 'Next.js',
+        caption: s('Staff add records and documents, 200+ so far.', 'A equipe insere registros e documentos, mais de 200 até agora.'),
+      },
+      {
+        art: 'gateway',
+        tone: 'violet',
+        label: s('Role-based access', 'Acesso por papéis'),
+        caption: s('Each role sees and changes only what it should.', 'Cada papel vê e altera apenas o que deve.'),
+      },
+      {
+        art: 'structure',
+        tone: 'green',
+        label: s('Pipelines and sanitising', 'Pipelines e saneamento'),
+        note: 'Prisma',
+        caption: s('Inserted content is cleaned before anything goes public.', 'O conteúdo inserido é limpo antes de qualquer publicação.'),
+      },
+      {
+        art: 'pipeline',
+        tone: 'amber',
+        label: s('Data catalog', 'Catálogo de dados'),
+        note: 'PostgreSQL, Neon',
+        caption: s('One structured catalog, organised by sector.', 'Um catálogo estruturado, organizado por setor.'),
+      },
+      {
+        art: 'stats',
+        tone: 'coral',
+        label: s('Dynamic statistics', 'Estatísticas dinâmicas'),
+        note: 'Next.js, Vercel',
+        caption: s('Statistics, graphs and illustrated results update with the data.', 'Estatísticas, grafos e resultados ilustrados se atualizam com os dados.'),
+      },
     ],
     links: [{ kind: 'live', url: 'https://projeto-oceano-five.vercel.app/' }],
   },

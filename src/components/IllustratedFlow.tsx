@@ -768,6 +768,153 @@ function Curated() {
   );
 }
 
+/* ---------- Academic evaluator recommendation ---------- */
+
+function Form() {
+  const fields = [
+    { y: 14, h: 14, w: 120, label: 'title' },
+    { y: 42, h: 34, w: 150, label: 'abstract' },
+    { y: 90, h: 14, w: 100, label: 'keywords' },
+  ];
+  return (
+    <>
+      {fields.map((f, i) => (
+        <g key={f.label}>
+          <text x="14" y={f.y + 2} className="art-text art-text--soft art-text--label">
+            {f.label}
+          </text>
+          <rect x="14" y={f.y + 5} width="172" height={f.h} rx="4" className="art-field" />
+          <rect
+            x="20"
+            y={f.y + 9}
+            width={f.w}
+            height="6"
+            rx="3"
+            className="art-typed"
+            style={{ animationDelay: `${i * 0.7}s` }}
+          />
+          {f.h > 20 && (
+            <rect x="20" y={f.y + 21} width={f.w - 40} height="6" rx="3" className="art-typed" style={{ animationDelay: `${i * 0.7 + 0.3}s` }} />
+          )}
+        </g>
+      ))}
+    </>
+  );
+}
+
+/* Two vectors from one origin; the angle between them closes as subjects get closer. */
+function Cosine() {
+  return (
+    <>
+      <path d="M30 100H184M30 100V14" className="art-grid" />
+      <g className="art-vec-a">
+        <path d="M30 100L170 40" className="art-vector art-vector--a" />
+        <circle cx="170" cy="40" r="4" className="art-tone" />
+      </g>
+      <g className="art-vec-b">
+        <path d="M30 100L120 18" className="art-vector art-vector--b" />
+        <circle cx="120" cy="18" r="4" className="art-vec-dot" />
+      </g>
+      <path d="M78 80A52 52 0 0 0 64 68" className="art-angle" />
+      <text x="94" y="74" className="art-text">θ</text>
+      <text x="132" y="96" className="art-text art-text--soft">cos θ → 1</text>
+    </>
+  );
+}
+
+const RANKED = [
+  { w: 0.95, c: 'var(--tone-amber)' },
+  { w: 0.8, c: 'var(--tone-green)' },
+  { w: 0.66, c: 'var(--tone-cyan)' },
+  { w: 0.5, c: 'var(--tone-violet)' },
+];
+
+function Rank() {
+  return (
+    <>
+      {RANKED.map((r, i) => (
+        <g key={i} className="art-rank-row" style={{ animationDelay: `${i * 0.2}s` }}>
+          <text x="12" y={28 + i * 26} className="art-text art-text--soft">
+            {i + 1}
+          </text>
+          <circle cx="32" cy={24 + i * 26} r="8" style={{ fill: r.c }} />
+          <rect x="46" y={18 + i * 26} width="54" height="5" rx="2.5" className="art-cell--light" />
+          <rect x="46" y={26 + i * 26} width="34" height="4" rx="2" className="art-cell" />
+          <rect x="110" y={20 + i * 26} width="80" height="8" rx="4" className="art-cell" />
+          <rect
+            x="110"
+            y={20 + i * 26}
+            width={80 * r.w}
+            height="8"
+            rx="4"
+            className="art-score"
+            style={{ fill: r.c, animationDelay: `${0.4 + i * 0.2}s` }}
+          />
+        </g>
+      ))}
+      <path d="M26 6l6 6 6-6" className="art-crown" />
+    </>
+  );
+}
+
+/* ---------- Research data portal ---------- */
+
+/* Sector share as a donut, KPI tiles counting up and a small graph. */
+const SECTORS = [
+  { share: 0.38, c: 'var(--tone-cyan)' },
+  { share: 0.27, c: 'var(--tone-violet)' },
+  { share: 0.2, c: 'var(--tone-green)' },
+  { share: 0.15, c: 'var(--tone-amber)' },
+];
+
+function Stats() {
+  const r = 26;
+  const C = 2 * Math.PI * r;
+  let acc = 0;
+  return (
+    <>
+      <g transform="rotate(-90 46 60)" style={{ transformBox: 'view-box' }}>
+        {SECTORS.map((sct, i) => {
+          const len = sct.share * C;
+          const el = (
+            <circle
+              key={i}
+              cx="46"
+              cy="60"
+              r={r}
+              className="art-donut"
+              style={{
+                stroke: sct.c,
+                strokeDasharray: `${len - 2} ${C}`,
+                strokeDashoffset: -acc,
+                animationDelay: `${i * 0.25}s`,
+              }}
+            />
+          );
+          acc += len;
+          return el;
+        })}
+      </g>
+      {/* KPI tiles */}
+      {[0, 1].map((i) => (
+        <g key={i}>
+          <rect x={92 + i * 52} y="14" width="46" height="30" rx="5" className="art-panel" />
+          <rect x={99 + i * 52} y="22" width="22" height="7" rx="2" className="art-tone art-kpi" style={{ animationDelay: `${i * 0.3}s` }} />
+          <rect x={99 + i * 52} y="33" width="30" height="4" rx="2" className="art-cell" />
+        </g>
+      ))}
+      {/* Graph of related items */}
+      <rect x="92" y="52" width="98" height="56" rx="5" className="art-panel" />
+      {[[110, 70, 132, 92], [132, 92, 160, 68], [160, 68, 178, 94], [110, 70, 160, 68]].map(([x1, y1, x2, y2], i) => (
+        <path key={i} d={`M${x1} ${y1}L${x2} ${y2}`} pathLength={1} className="art-edge" style={{ animationDelay: `${i * 0.2}s` }} />
+      ))}
+      {[[110, 70], [132, 92], [160, 68], [178, 94]].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r="4.5" className={`art-node art-node--${i % 3}`} style={{ animationDelay: `${i * 0.2}s` }} />
+      ))}
+    </>
+  );
+}
+
 const ART: Record<FlowArt, () => React.JSX.Element> = {
   probe: Probe,
   readings: Readings,
@@ -795,6 +942,10 @@ const ART: Record<FlowArt, () => React.JSX.Element> = {
   vote: Vote,
   filters: Filters,
   curated: Curated,
+  form: Form,
+  cosine: Cosine,
+  rank: Rank,
+  stats: Stats,
 };
 
 /* ---------- Component ---------- */

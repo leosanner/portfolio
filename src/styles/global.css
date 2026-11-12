@@ -234,10 +234,10 @@ em {
 }
 .hero__chart {
   position: relative;
-  min-width: 860px;
-  height: 260px;
+  min-width: 920px;
+  height: 320px;
 }
-.hero__chart svg {
+.hero__chart > svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -274,17 +274,51 @@ em {
 }
 .hero__dot {
   position: absolute;
-  left: -7px;
-  top: -7px;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--route);
+  left: -20px;
+  top: -20px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--tone);
   border-radius: 50%;
-  background: var(--bg);
-  transition: transform 150ms;
+  background: color-mix(in srgb, var(--tone) 14%, var(--bg));
+  color: var(--tone);
+  transition:
+    transform 180ms,
+    box-shadow 180ms;
 }
+.hero__dot svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Ongoing: filled badge with a slow pulse. */
 .hero__stop.is-ongoing .hero__dot {
-  background: var(--route);
+  background: var(--tone);
+  color: var(--bg);
+}
+.hero__stop.is-ongoing .hero__dot::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--tone);
+  animation: hero-pulse 2.4s ease-out infinite;
+}
+@keyframes hero-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }
 .hero__label {
   position: absolute;
@@ -300,17 +334,19 @@ em {
   font-size: 0.75rem;
 }
 .hero__stop.is-above .hero__label {
-  bottom: 16px;
+  bottom: 28px;
 }
 .hero__stop.is-below .hero__label {
-  top: 16px;
+  top: 28px;
 }
 .hero__stop a:hover .hero__label,
 .hero__stop a:focus-visible .hero__label {
-  color: var(--route);
+  color: var(--tone);
 }
-.hero__stop a:hover .hero__dot {
-  transform: scale(1.25);
+.hero__stop a:hover .hero__dot,
+.hero__stop a:focus-visible .hero__dot {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--tone) 18%, transparent);
 }
 
 /* ---------- Sections ---------- */
@@ -690,6 +726,21 @@ em {
     animation: none;
   }
 }
+/* Band under a screenshot: figures and outcome points share one row. */
+.case__results:not(.case__results--side) .case__tail:has(.case__figures):has(.case__outcomes) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px 48px;
+  align-items: center;
+}
+.case__results:not(.case__results--side) .case__tail:has(.case__outcomes) .case__figures {
+  margin-bottom: 0;
+}
+@media (max-width: 760px) {
+  .case__results:not(.case__results--side) .case__tail:has(.case__figures):has(.case__outcomes) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .case__results--side {
   margin-top: 0;
   padding: 20px 22px;
@@ -1008,6 +1059,10 @@ em {
   }
   .case {
     animation: none;
+  }
+  .hero__stop.is-ongoing .hero__dot::after {
+    animation: none;
+    opacity: 0;
   }
   .hero__route,
   .hero__stop {
@@ -2731,6 +2786,115 @@ em {
   fill: var(--tone);
 }
 
+/* Drawings for the evaluator recommendation */
+.art-text--label {
+  font-size: 7px;
+}
+.art-field {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--tone) 40%, var(--line));
+}
+.art-typed {
+  fill: var(--tone);
+  transform-origin: left;
+  animation: art-typed 4s steps(12, end) infinite both;
+}
+@keyframes art-typed {
+  0% {
+    transform: scaleX(0);
+  }
+  30%,
+  90% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+.art-vector {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.art-vector--a {
+  stroke: var(--tone);
+}
+.art-vector--b {
+  stroke: var(--tone-violet);
+}
+.art-vec-dot {
+  fill: var(--tone-violet);
+}
+.art-vec-b {
+  transform-box: view-box;
+  transform-origin: 30px 100px;
+  animation: art-close 4s ease-in-out infinite;
+}
+@keyframes art-close {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50%,
+  70% {
+    transform: rotate(12deg);
+  }
+}
+.art-angle {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 1.5;
+  animation: art-fade 4s ease-in-out infinite reverse;
+}
+.art-rank-row {
+  animation: art-row 4s ease-out infinite both;
+}
+.art-score {
+  transform-origin: left;
+  animation: art-score 4s cubic-bezier(0.3, 0, 0.2, 1) infinite both;
+}
+@keyframes art-score {
+  0% {
+    transform: scaleX(0);
+  }
+  30%,
+  90% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+.art-crown {
+  fill: none;
+  stroke: var(--tone-amber);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* Drawings for the research data portal */
+.art-donut {
+  fill: none;
+  stroke-width: 12;
+  animation: art-donut 4s ease-out infinite both;
+}
+@keyframes art-donut {
+  0% {
+    opacity: 0;
+  }
+  15%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.art-kpi {
+  transform-origin: left;
+  animation: art-score 4s steps(6, end) infinite both;
+}
+
 /* ---------- Reading list: books drawn as small covers ---------- */
 .case__reading {
   margin-top: 4px;
@@ -2894,6 +3058,12 @@ em {
   }
   .art-drop-row {
     opacity: 0.12;
+  }
+  .art-vec-b {
+    transform: rotate(12deg);
+  }
+  .art-angle {
+    opacity: 0;
   }
   .art-keep rect {
     fill: var(--tone);

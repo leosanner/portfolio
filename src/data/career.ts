@@ -134,14 +134,14 @@ export const mainNodes: CareerNode[] = [
     category: { en: 'Software engineering consulting', pt: 'Consultoria em engenharia de software' },
     period: { en: 'May – Nov 2026', pt: 'Mai. – nov. 2026' },
     summary: {
-      en: 'A public portal for exploring research data, theses and dissertations through charts and maps.',
-      pt: 'Portal público para explorar dados de pesquisa, teses e dissertações com gráficos e mapas.',
+      en: 'A public portal for research data, organised by sector, with a data catalog, dynamic statistics and graphs, fed by an admin panel with role-based access.',
+      pt: 'Portal público de dados de pesquisa, organizado por setores, com catálogo de dados, estatísticas dinâmicas e grafos, alimentado por um painel administrativo com controle de acesso por papéis.',
     },
     highlights: {
-      en: ['Interactive charts and statistics', 'Geospatial exploration', 'Admin area with audit and data entry'],
-      pt: ['Gráficos e estatísticas interativos', 'Exploração geoespacial', 'Área administrativa com auditoria e cadastro de dados'],
+      en: ['200+ documents in the admin panel', 'Data catalog and role-based access', 'Pipelines that sanitise content before it goes public', 'Dynamic statistics and graphs'],
+      pt: ['Mais de 200 documentos no painel administrativo', 'Catálogo de dados e acesso por papéis', 'Pipelines que saneiam o conteúdo antes de publicá-lo', 'Estatísticas dinâmicas e grafos'],
     },
-    tech: ['Next.js', 'TypeScript', 'PostgreSQL', 'Neon', 'Vercel'],
+    tech: ['Next.js', 'TypeScript', 'Prisma', 'PostgreSQL', 'Neon', 'GitHub Actions', 'Vercel'],
   },
   {
     id: 'trust-gtw',
