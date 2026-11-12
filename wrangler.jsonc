@@ -1,8 +1,10 @@
-// Cloudflare Workers deploy: the Astro build in ./dist served as static assets.
+// Cloudflare Workers deploy: the Astro build in ./dist served as static assets,
+// on the tableo.com.br custom domain.
 {
   "name": "portfolio",
   "compatibility_date": "2026-11-01",
   "assets": {
     "directory": "./dist"
-  }
+  },
+  "routes": [{ "pattern": "tableo.com.br", "custom_domain": true }]
 }
