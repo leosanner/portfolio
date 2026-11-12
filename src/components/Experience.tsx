@@ -379,7 +379,14 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
   const hasMedia = Boolean(study.media?.length);
   const hasResults = Boolean(study.results?.length || study.outcomes?.length);
   // Without a screenshot, results and organisations share the column beside the intro.
-  const sideResults = !hasMedia && hasResults;
+  const overview = Boolean(study.overview);
+  const sideResults = !hasMedia && hasResults && !overview;
+  const sideOrgs = sideResults || overview;
+
+  const openProject = (pid: string) => {
+    setId(pid);
+    document.getElementById('experience-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   const meta = [getAffiliations(node).length ? null : (node.org ?? parent?.org), node.period?.[lang]].filter(Boolean).join(', ');
 
   // Hero route links point at #tab-<id>: select that stop on load and on every jump.
@@ -454,7 +461,7 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
           </div>
         )}
 
-        <div className={`case__head${hasMedia ? ' has-media' : hasResults ? ' has-results' : ''}`}>
+        <div className={`case__head${hasMedia ? ' has-media' : sideOrgs ? ' has-results' : ''}`}>
           <div>
             <p className="case__category">
               {parent ? `${ui['experience.subprojectOf']} ${parent.title[lang]}` : node.category[lang]}
@@ -470,13 +477,13 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
                 <Problem study={study} lang={lang} ui={ui} />
               </div>
             )}
-            {!sideResults && <Affiliations node={node} lang={lang} ui={ui} />}
+            {!sideOrgs && <Affiliations node={node} lang={lang} ui={ui} />}
             <Links study={study} ui={ui} />
           </div>
           {hasMedia && <Screenshot study={study} lang={lang} />}
-          {sideResults && (
-            <div className="case__side">
-              <ResultsBand study={study} lang={lang} ui={ui} side />
+          {sideOrgs && (
+            <div className={`case__side${overview ? ' is-orgs-only' : ''}`}>
+              {sideResults && <ResultsBand study={study} lang={lang} ui={ui} side />}
               <Affiliations node={node} lang={lang} ui={ui} />
             </div>
           )}
@@ -484,16 +491,41 @@ export default function Experience({ lang, ui }: { lang: Locale; ui: UIStrings }
 
         {hasMedia && <ResultsBand study={study} lang={lang} ui={ui} />}
 
-        <div className="case__body">
-          <Story node={node} study={study} lang={lang} ui={ui} problemInHead={sideResults} />
-          <aside className="case__rail">
-            <Stack node={node} study={study} lang={lang} ui={ui} />
-          </aside>
-        </div>
+        {!overview && (
+          <div className="case__body">
+            <Story node={node} study={study} lang={lang} ui={ui} problemInHead={sideResults} />
+            <aside className="case__rail">
+              <Stack node={node} study={study} lang={lang} ui={ui} />
+            </aside>
+          </div>
+        )}
 
         <ArchitectureDiagram study={study} lang={lang} ui={ui} />
 
         <Flow study={study} lang={lang} ui={ui} />
+
+        {overview && projects.length > 0 && (
+          <section className="case__subprojects">
+            <h4 className="case__label">{ui['experience.projects']}</h4>
+            <ul className="subprojects">
+              {projects.map((p, i) => (
+                <li
+                  key={p.id}
+                  style={{ '--tone': `var(--tone-${study.projectTones?.[p.id] ?? TONES[i % TONES.length]})` } as CSSProperties}
+                >
+                  <button type="button" onClick={() => openProject(p.id)}>
+                    <span className="subprojects__num">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="subprojects__title">{p.title[lang]}</span>
+                    <span className="subprojects__summary">{p.summary[lang]}</span>
+                    <span className="subprojects__open">
+                      {ui['experience.open']} <span aria-hidden>→</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </section>
     </div>
   );

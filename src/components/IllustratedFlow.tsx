@@ -425,6 +425,349 @@ function Portal() {
   );
 }
 
+/* ---------- Research programme overview ---------- */
+
+function Library() {
+  const shelf = (y: number, seed: number) =>
+    Array.from({ length: 11 }, (_, i) => {
+      const h = 22 + ((i * 7 + seed) % 4) * 4;
+      return <rect key={`${y}-${i}`} x={14 + i * 11} y={y - h} width="9" height={h} rx="1.5" className={`art-spine art-spine--${(i + seed) % 3}`} />;
+    });
+  return (
+    <>
+      {shelf(52, 0)}
+      <path d="M8 53h132" className="art-shelf" />
+      {shelf(100, 2)}
+      <path d="M8 101h132" className="art-shelf" />
+      {/* More papers keep arriving */}
+      {[0, 1, 2].map((i) => (
+        <g key={i} className="art-arrive" style={{ animationDelay: `${i * 0.9}s` }}>
+          <Doc x={162} y={70} s={0.9} />
+        </g>
+      ))}
+    </>
+  );
+}
+
+function Screen() {
+  return (
+    <>
+      {/* Funnel */}
+      <path d="M62 30h76l-26 34v20H88V64z" className="art-funnel" />
+      {/* Articles falling in, then sorted: relevant to the right, the rest to the left */}
+      {[0, 1, 2, 3].map((i) => (
+        <g key={i} className={i % 2 ? 'art-sort-out' : 'art-sort-keep'} style={{ animationDelay: `${i * 0.75}s` }}>
+          <Doc x={89} y={-4} s={0.8} />
+        </g>
+      ))}
+      <path d="M20 108h40" className="art-grid" />
+      <path d="M140 108h40" className="art-tray" />
+      <path d="M152 96l6 6 12-12" className="art-check" />
+      <path d="M34 92l12 12m0-12-12 12" className="art-x art-x--still" />
+    </>
+  );
+}
+
+function Ask() {
+  return (
+    <>
+      {/* Question */}
+      <g className="art-bubble-q">
+        <rect x="92" y="10" width="96" height="24" rx="12" className="art-cell" />
+        <rect x="104" y="19" width="64" height="6" rx="3" className="art-cell--light" />
+      </g>
+      {/* Typing, then the answer with its references */}
+      <g className="art-typing">
+        {[0, 1, 2].map((i) => (
+          <circle key={i} cx={28 + i * 9} cy="56" r="3" className="art-tone" style={{ animationDelay: `${i * 0.15}s` }} />
+        ))}
+      </g>
+      <g className="art-bubble-a">
+        <rect x="12" y="44" width="124" height="66" rx="12" className="art-answer" />
+        <rect x="24" y="56" width="96" height="6" rx="3" className="art-tone" />
+        <rect x="24" y="68" width="80" height="6" rx="3" className="art-tone art-dim" />
+        <rect x="24" y="80" width="88" height="6" rx="3" className="art-tone art-dim" />
+        <rect x="24" y="92" width="18" height="10" rx="3" className="art-ref" />
+        <rect x="46" y="92" width="18" height="10" rx="3" className="art-ref" />
+        <text x="33" y="100" textAnchor="middle" className="art-text art-text--ref">1</text>
+        <text x="55" y="100" textAnchor="middle" className="art-text art-text--ref">2</text>
+      </g>
+    </>
+  );
+}
+
+const GRAPH_NODES = [
+  [100, 60, 9],
+  [50, 34, 6],
+  [150, 30, 6],
+  [40, 88, 5],
+  [158, 86, 6],
+  [100, 104, 5],
+  [76, 20, 4],
+  [128, 64, 4],
+] as const;
+const GRAPH_EDGES = [
+  [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 6], [2, 7], [4, 7], [1, 3], [5, 4],
+] as const;
+
+function Explore() {
+  return (
+    <>
+      {GRAPH_EDGES.map(([a, b], i) => {
+        const [x1, y1] = GRAPH_NODES[a];
+        const [x2, y2] = GRAPH_NODES[b];
+        return <path key={i} d={`M${x1} ${y1}L${x2} ${y2}`} pathLength={1} className="art-edge" style={{ animationDelay: `${i * 0.15}s` }} />;
+      })}
+      {GRAPH_NODES.map(([x, y, r], i) => (
+        <circle
+          key={i}
+          cx={x}
+          cy={y}
+          r={r}
+          className={`art-node art-node--${i % 3}`}
+          style={{ animationDelay: `${i * 0.2}s` }}
+        />
+      ))}
+      <circle cx="100" cy="60" r="9" className="art-pulse art-pulse--tone" />
+    </>
+  );
+}
+
+/* ---------- Article classifier ---------- */
+
+function Pipeline() {
+  const lanes = [26, 60, 94];
+  return (
+    <>
+      {lanes.map((y, i) => (
+        <g key={y}>
+          <Doc x={10} y={y - 14} s={0.9} />
+          <path d={`M36 ${y}H96Q110 ${y} 110 ${(y + 60) / 2}V60H134`} className="art-pipe" />
+          <circle cx="40" cy={y} r="3.5" className="art-tone art-flow" style={{ animationDelay: `${i * 0.5}s` }} />
+        </g>
+      ))}
+      {/* Storage */}
+      <path d="M140 40v40c0 6 22 10 22 10s22-4 22-10V40" className="art-db" />
+      <ellipse cx="162" cy="40" rx="22" ry="8" className="art-db-top" />
+      <path d="M140 54c0 5 44 5 44 0M140 68c0 5 44 5 44 0" className="art-db-ring" />
+    </>
+  );
+}
+
+const TERMS = ['impact', 'species', 'habitat', 'emission'];
+
+function Tfidf() {
+  const weights = [
+    [0.9, 0.2, 0.5, 0.1, 0.7],
+    [0.3, 0.8, 0.1, 0.6, 0.2],
+    [0.6, 0.1, 0.9, 0.3, 0.4],
+    [0.1, 0.5, 0.3, 0.8, 0.9],
+  ];
+  return (
+    <>
+      {TERMS.map((w, i) => (
+        <g key={w}>
+          <rect x="8" y={14 + i * 24} width="54" height="16" rx="8" className="art-chip" />
+          <text x="35" y={25 + i * 24} textAnchor="middle" className="art-text art-text--chip">
+            {w}
+          </text>
+        </g>
+      ))}
+      <path d="M70 60h18m-6-6 6 6-6 6" className="art-arrow art-arrow--thin" />
+      {weights.map((row, r) =>
+        row.map((v, c) => (
+          <rect
+            key={`${r}-${c}`}
+            x={98 + c * 19}
+            y={14 + r * 24}
+            width="16"
+            height="16"
+            rx="3"
+            className="art-weight"
+            style={{ '--w': v, animationDelay: `${(r + c) * 0.12}s` } as CSSProperties}
+          />
+        )),
+      )}
+    </>
+  );
+}
+
+/* Random search: candidate settings appear one by one, the best gets a ring. */
+const TRIALS = [
+  [40, 70], [76, 30], [58, 48], [96, 64], [30, 34], [84, 46], [66, 76], [104, 26],
+] as const;
+
+function Tune() {
+  return (
+    <>
+      <rect x="10" y="10" width="110" height="78" rx="6" className="art-panel" />
+      <path d="M22 20v58h90" className="art-grid" />
+      {TRIALS.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r="4" className="art-trial" style={{ animationDelay: `${i * 0.3}s` }} />
+      ))}
+      <circle cx="84" cy="46" r="9" className="art-best" />
+      {/* Folds: the validation fold moves along */}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <rect key={i} x={10 + i * 23} y="98" width="20" height="12" rx="3" className="art-fold" style={{ animationDelay: `${i * 0.6}s` }} />
+      ))}
+      {/* Train / test split */}
+      <rect x="132" y="22" width="56" height="48" rx="4" className="art-split-train" />
+      <rect x="132" y="76" width="56" height="16" rx="4" className="art-split-test" />
+      <text x="160" y="50" textAnchor="middle" className="art-text">train</text>
+      <text x="160" y="87" textAnchor="middle" className="art-text art-text--alt">test</text>
+    </>
+  );
+}
+
+function Confusion() {
+  const cells = [
+    { x: 40, y: 18, hit: true },
+    { x: 88, y: 18, hit: false },
+    { x: 40, y: 64, hit: false },
+    { x: 88, y: 64, hit: true },
+  ];
+  return (
+    <>
+      <text x="76" y="12" textAnchor="middle" className="art-text art-text--soft">predicted</text>
+      <text x="22" y="64" textAnchor="middle" className="art-text art-text--soft" transform="rotate(-90 22 64)" style={{ transformBox: 'view-box' }}>
+        actual
+      </text>
+      {cells.map((c, i) => (
+        <rect
+          key={i}
+          x={c.x}
+          y={c.y}
+          width="44"
+          height="42"
+          rx="5"
+          className={`art-cm${c.hit ? ' is-hit' : ''}`}
+          style={{ animationDelay: `${i * 0.25}s` }}
+        />
+      ))}
+      <path d="M54 39l6 6 10-10M102 85l6 6 10-10" className="art-check art-check--bg" />
+      {/* Metric bars */}
+      {[0.86, 0.78, 0.82].map((v, i) => (
+        <g key={i}>
+          <rect x={148 + i * 14} y="22" width="10" height="84" rx="3" className="art-cell" />
+          <rect
+            x={148 + i * 14}
+            y={22 + 84 * (1 - v)}
+            width="10"
+            height={84 * v}
+            rx="3"
+            className="art-bar art-tone"
+            style={{ animationDelay: `${0.8 + i * 0.15}s` }}
+          />
+        </g>
+      ))}
+    </>
+  );
+}
+
+function Infer() {
+  return (
+    <>
+      <g className="art-feed">
+        <Doc x={8} y={44} s={1.1} />
+      </g>
+      {/* The trained model */}
+      <rect x="64" y="28" width="64" height="64" rx="14" className="art-model" />
+      {[[84, 48], [108, 48], [84, 72], [108, 72], [96, 60]].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r="4" className="art-tone art-blink" style={{ animationDelay: `${i * 0.2}s` }} />
+      ))}
+      <path d="M84 48l12 12 12-12M84 72l12-12 12 12" className="art-line" />
+      {/* The label it returns */}
+      <g className="art-label">
+        <rect x="136" y="48" width="56" height="24" rx="12" className="art-tone" />
+        <path d="M146 60l4 4 8-8" className="art-check art-check--bg" />
+        <rect x="162" y="57" width="22" height="6" rx="3" className="art-cell--bg" />
+      </g>
+    </>
+  );
+}
+
+/* ---------- Literature review data pipeline ---------- */
+
+/* Models from different providers each give an opinion; the opinions are combined. */
+function Vote() {
+  const voters = [
+    { x: 22, y: 18, c: 'var(--tone-cyan)', yes: true },
+    { x: 22, y: 76, c: 'var(--tone-amber)', yes: false },
+    { x: 152, y: 18, c: 'var(--tone-green)', yes: true },
+    { x: 152, y: 76, c: 'var(--tone-coral)', yes: true },
+  ];
+  return (
+    <>
+      {voters.map((v, i) => (
+        <g key={i}>
+          <path d={`M${v.x + 13} ${v.y + 13}L100 60`} className="art-grid art-grid--dash" />
+          <rect x={v.x} y={v.y} width="26" height="26" rx="7" style={{ fill: v.c }} />
+          <circle cx={v.x + 9} cy={v.y + 11} r="2" className="art-eye" />
+          <circle cx={v.x + 17} cy={v.y + 11} r="2" className="art-eye" />
+          <rect x={v.x + 8} y={v.y + 17} width="10" height="2.5" rx="1" className="art-eye" />
+          <g className="art-opinion" style={{ animationDelay: `${i * 0.45}s` }}>
+            <circle cx={v.x + 28} cy={v.y + 2} r="8" className={v.yes ? 'art-yes' : 'art-no'} />
+            <path
+              d={v.yes ? `M${v.x + 24} ${v.y + 2}l3 3 5-5` : `M${v.x + 25} ${v.y - 1}l6 6m0-6-6 6`}
+              className="art-check art-check--bg art-check--small"
+            />
+          </g>
+        </g>
+      ))}
+      <Doc x={89} y={45} s={1} />
+      {/* Combined verdict */}
+      <g className="art-verdict">
+        <circle cx="100" cy="60" r="22" className="art-ring-tone" />
+      </g>
+    </>
+  );
+}
+
+function Filters() {
+  const rows = [0, 1, 2, 3, 4, 5, 6];
+  const keep = new Set([1, 4, 6]);
+  return (
+    <>
+      {/* Filter controls */}
+      <path d="M12 16h70M12 32h70" className="art-track" />
+      <circle cx="30" cy="16" r="5" className="art-tone art-knob" />
+      <circle cx="64" cy="32" r="5" className="art-tone art-knob art-knob--b" />
+      <rect x="94" y="9" width="44" height="14" rx="7" className="art-chip-tone" />
+      <rect x="142" y="9" width="48" height="14" rx="7" className="art-chip-tone" />
+      <rect x="94" y="27" width="56" height="14" rx="7" className="art-chip-tone" />
+      {/* Articles: most drop out, a few stay */}
+      {rows.map((i) => (
+        <g key={i} className={keep.has(i) ? 'art-keep' : 'art-drop-row'} style={{ animationDelay: `${i * 0.12}s` }}>
+          <rect x="12" y={50 + i * 9.5} width="176" height="7" rx="2" className={keep.has(i) ? 'art-tone' : 'art-cell'} />
+        </g>
+      ))}
+    </>
+  );
+}
+
+function Curated() {
+  return (
+    <>
+      {/* The full volume */}
+      {Array.from({ length: 9 }, (_, i) => (
+        <g key={i} className="art-pile" style={{ animationDelay: `${i * 0.1}s` }} transform={`rotate(${(i * 29) % 40 - 20} ${30 + (i % 3) * 14} ${60 + Math.floor(i / 3) * 12})`}>
+          <rect x={20 + (i % 3) * 14} y={40 + Math.floor(i / 3) * 12} width="20" height="26" rx="2" className="art-pile-doc" />
+        </g>
+      ))}
+      <path d="M78 60h20m-6-6 6 6-6 6" className="art-arrow art-arrow--thin" />
+      {/* The manageable set */}
+      {[0, 1, 2].map((i) => (
+        <rect key={i} x={110 + i * 4} y={34 + i * 6} width="28" height="38" rx="3" className="art-stack-doc" />
+      ))}
+      {/* Exposed to the app */}
+      <path d="M150 58h12" className="art-line" />
+      <rect x="162" y="44" width="30" height="28" rx="6" className="art-api" />
+      <text x="177" y="62" textAnchor="middle" className="art-text art-text--api">API</text>
+      <circle cx="177" cy="86" r="3" className="art-tone art-blink" />
+    </>
+  );
+}
+
 const ART: Record<FlowArt, () => React.JSX.Element> = {
   probe: Probe,
   readings: Readings,
@@ -440,6 +783,18 @@ const ART: Record<FlowArt, () => React.JSX.Element> = {
   match: Match,
   report: Report,
   portal: Portal,
+  library: Library,
+  screen: Screen,
+  ask: Ask,
+  explore: Explore,
+  pipeline: Pipeline,
+  tfidf: Tfidf,
+  tune: Tune,
+  confusion: Confusion,
+  infer: Infer,
+  vote: Vote,
+  filters: Filters,
+  curated: Curated,
 };
 
 /* ---------- Component ---------- */
@@ -479,7 +834,7 @@ export default function IllustratedFlow({
   const active = reduced ? -1 : tick;
 
   return (
-    <ol className="ill" aria-label={label}>
+    <ol className={`ill${steps.length > 5 ? ' ill--wrap' : ''}`} aria-label={label}>
       {steps.map((step, i) => {
         const Art = step.art ? ART[step.art] : null;
         const state = i === active ? 'active' : i < active ? 'done' : 'idle';

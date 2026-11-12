@@ -40,7 +40,10 @@ export type Tone = 'cyan' | 'green' | 'violet' | 'amber' | 'coral';
 export type FlowArt =
   | 'probe' | 'readings' | 'classify' | 'webapp'
   | 'satellite' | 'structure' | 'split' | 'train' | 'forecast'
-  | 'upload' | 'gateway' | 'match' | 'report' | 'portal';
+  | 'upload' | 'gateway' | 'match' | 'report' | 'portal'
+  | 'library' | 'screen' | 'ask' | 'explore'
+  | 'pipeline' | 'tfidf' | 'tune' | 'confusion' | 'infer'
+  | 'vote' | 'filters' | 'curated';
 
 export interface FlowStep {
   label: Localized;
@@ -97,6 +100,13 @@ export interface Architecture {
 }
 
 export interface CaseStudy {
+  /**
+   * Programme overview: shows only the head, the flow and links to its projects.
+   * Used where details stay inside the individual projects.
+   */
+  overview?: boolean;
+  /** Overview only: colour of each project card, by project id. */
+  projectTones?: Record<string, Tone>;
   architecture?: Architecture;
   /** Override the "The problem" / "What I built" headings, e.g. for a study rather than a build. */
   problemLabel?: Localized;
@@ -287,65 +297,195 @@ export const caseStudies: Record<string, CaseStudy> = {
     ],
   },
   petrobras: {
-    outcomes: [s('Selected research products secured internal investment.', 'Produtos selecionados da pesquisa receberam investimento interno.')],
-    problem: s(
-      'Environmental impact assessment depends on large volumes of scientific literature that take a long time to screen, read and explore.',
-      'A avaliação de impacto ambiental depende de grandes volumes de literatura científica, que levam muito tempo para triar, ler e explorar.',
-    ),
-    built: list(
-      [
-        'A classifier that screens articles by relevance',
-        'A RAG app that answers questions over selected papers, with references',
-        'A visual explorer with knowledge graphs and interactive charts',
-      ],
-      [
-        'Um classificador que faz a triagem de artigos por relevância',
-        'Uma aplicação RAG que responde perguntas sobre artigos selecionados, com referências',
-        'Um explorador visual com grafos de conhecimento e gráficos interativos',
-      ],
-    ),
+    overview: true,
+    projectTones: { 'petrobras-classifier': 'green', 'petrobras-pipeline': 'violet', 'petrobras-app': 'amber' },
+    flow: [
+      {
+        art: 'library',
+        tone: 'cyan',
+        label: s('Scientific literature', 'Literatura científica'),
+        caption: s('Large volumes of research on environmental impact.', 'Grandes volumes de pesquisa sobre impacto ambiental.'),
+      },
+      {
+        art: 'screen',
+        tone: 'green',
+        label: s('Filter', 'Filtrar'),
+        caption: s(
+          'Classifiers, AI models and domain filters cut the volume down to a manageable set.',
+          'Classificadores, modelos de IA e filtros do domínio reduzem o volume a um conjunto gerenciável.',
+        ),
+      },
+      {
+        art: 'ask',
+        tone: 'violet',
+        label: s('Ask', 'Perguntar'),
+        caption: s('Questions in plain language, answered with references.', 'Perguntas em linguagem natural, respondidas com referências.'),
+      },
+      {
+        art: 'explore',
+        tone: 'amber',
+        label: s('Explore', 'Explorar'),
+        caption: s('Knowledge graphs and interactive charts.', 'Grafos de conhecimento e gráficos interativos.'),
+      },
+    ],
   },
   'petrobras-classifier': {
+    problemLabel: s('The task', 'A tarefa'),
     problem: s(
-      'Literature reviews for environmental impact assessment return a large volume of results that had to be screened for relevance.',
-      'Revisões bibliográficas para avaliação de impacto ambiental retornam um grande volume de resultados que precisavam ser triados por relevância.',
+      'Binary text classification: given a scientific article, decide whether it relates to environmental impact assessment or not.',
+      'Classificação binária de texto: dado um artigo científico, decidir se ele tem relação com avaliação de impacto ambiental ou não.',
     ),
     built: list(
       [
-        'A machine learning tool that labels scientific articles as relevant or not for environmental impact assessment',
-        'A TF-IDF pipeline feeding an ensemble of XGBoost, Decision Trees and Naive Bayes',
-        'A visual interface on Streamlit Cloud, integrated with Azure Blob Storage',
+        'Data pipelines that collect the articles and sanitise them into a clean, consistent dataset',
+        'Text features with TF-IDF',
+        'Train/test split, then hyperparameter search with cross-validation',
+        'An ensemble of XGBoost, Decision Trees and Naive Bayes, trained and used for inference',
+        'Evaluation with a confusion matrix and other metrics, to check how well the model fits',
+        'Training and experiments in an Azure environment',
       ],
       [
-        'Ferramenta de machine learning que classifica artigos científicos como relevantes ou não para avaliação de impacto ambiental',
-        'Pipeline TF-IDF alimentando um ensemble de XGBoost, Decision Trees e Naive Bayes',
-        'Interface visual no Streamlit Cloud, integrada ao Azure Blob Storage',
+        'Pipelines de dados que coletam os artigos e os saneiam em uma base limpa e consistente',
+        'Features de texto com TF-IDF',
+        'Divisão treino/teste e busca de hiperparâmetros com validação cruzada',
+        'Um ensemble de XGBoost, Decision Trees e Naive Bayes, treinado e usado para inferência',
+        'Avaliação com matriz de confusão e outras métricas, para verificar se o modelo se ajusta bem',
+        'Treino e experimentos em um ambiente Azure',
       ],
     ),
     details: list(
       [
+        'Metrics: accuracy, precision, recall and F1-score, read alongside the confusion matrix',
+        'Cross-validation inside the search, so the test set stays untouched until the end',
         'Comparative experiments with embeddings and Transformers',
-        'Evaluated with cross-validation, accuracy, F1-score and confusion matrices',
       ],
       [
+        'Métricas: acurácia, precisão, recall e F1-score, lidas junto com a matriz de confusão',
+        'Validação cruzada dentro da busca, para que o conjunto de teste fique intocado até o fim',
         'Experimentos comparativos com embeddings e Transformers',
-        'Avaliado com validação cruzada, acurácia, F1-score e matriz de confusão',
       ],
     ),
     stack: [
-      layer('Machine learning', 'Machine learning', ['scikit-learn', 'XGBoost', 'TF-IDF']),
-      layer('Experiments', 'Experimentos', ['Embeddings', 'Transformers']),
-      layer('Interface and storage', 'Interface e armazenamento', ['Streamlit', 'Streamlit Cloud', 'Azure Blob Storage']),
+      layer('Data pipeline', 'Pipeline de dados', ['Python', 'pandas', 'Text cleaning'], 'cyan'),
+      layer('Features', 'Features', ['TF-IDF', 'Embeddings', 'Transformers'], 'violet'),
+      layer('Modelling', 'Modelagem', ['scikit-learn', 'XGBoost', 'Decision Trees', 'Naive Bayes', 'RandomizedSearchCV'], 'amber'),
+      layer('Evaluation', 'Avaliação', ['Confusion matrix', 'Accuracy', 'Precision', 'Recall', 'F1-score'], 'coral'),
+      layer('Azure', 'Azure', ['Azure Machine Learning', 'Azure Blob Storage', 'Azure ML Notebooks'], 'green'),
     ],
     flow: [
-      { label: s('Scientific articles', 'Artigos científicos') },
-      { label: s('TF-IDF features', 'Features TF-IDF') },
-      { label: s('Ensemble model', 'Modelo ensemble'), note: 'XGBoost, Decision Trees, Naive Bayes' },
-      { label: s('Relevance label', 'Rótulo de relevância') },
-      { label: s('Review interface', 'Interface de revisão'), note: 'Streamlit' },
+      {
+        art: 'pipeline',
+        tone: 'cyan',
+        label: s('Data pipeline', 'Pipeline de dados'),
+        note: 'Python, Azure Blob Storage',
+        caption: s('Articles are collected from their sources and stored.', 'Os artigos são coletados das fontes e armazenados.'),
+      },
+      {
+        art: 'structure',
+        tone: 'green',
+        label: s('Sanitise', 'Saneamento'),
+        note: 'pandas',
+        caption: s('Duplicates, gaps and noise are cleaned into one consistent dataset.', 'Duplicatas, lacunas e ruído são limpos em uma base consistente.'),
+      },
+      {
+        art: 'tfidf',
+        tone: 'violet',
+        label: s('TF-IDF features', 'Features TF-IDF'),
+        note: 'scikit-learn',
+        caption: s('Each article becomes a vector of weighted terms.', 'Cada artigo vira um vetor de termos ponderados.'),
+      },
+      {
+        art: 'tune',
+        tone: 'amber',
+        label: s('Split, tune, train', 'Dividir, ajustar, treinar'),
+        note: 'RandomizedSearchCV, Azure ML',
+        caption: s(
+          'A train/test split, then a hyperparameter search with cross-validation picks the best model.',
+          'Divisão treino/teste e busca de hiperparâmetros com validação cruzada escolhem o melhor modelo.',
+        ),
+      },
+      {
+        art: 'confusion',
+        tone: 'coral',
+        label: s('Evaluate', 'Avaliar'),
+        note: 'Confusion matrix, F1-score',
+        caption: s('The confusion matrix and metrics show how well the model fits.', 'A matriz de confusão e as métricas mostram se o modelo se ajusta bem.'),
+      },
+      {
+        art: 'infer',
+        tone: 'cyan',
+        label: s('Inference', 'Inferência'),
+        note: 'XGBoost, Decision Trees, Naive Bayes',
+        caption: s('New articles get a label: related or not related.', 'Novos artigos recebem um rótulo: relacionado ou não.'),
+      },
     ],
   },
-  'petrobras-rag': {
+  'petrobras-pipeline': {
+    problemLabel: s('The task', 'A tarefa'),
+    problem: s(
+      'A literature search returns far more articles than anyone can read. The pipeline has to reduce that volume to a manageable set and serve it to the app.',
+      'Uma busca bibliográfica retorna muito mais artigos do que alguém consegue ler. O pipeline precisa reduzir esse volume a um conjunto gerenciável e servi-lo à aplicação.',
+    ),
+    built: list(
+      [
+        'Collection from different scientific repositories through their APIs',
+        'Machine learning models that classify whether each article fits the context',
+        'AI models from different providers that each give an opinion on the article, combined as an ensemble',
+        'Metadata filters',
+        'Domain filters defined together with the specialists',
+        'The curated set exposed for the RAG app to consume',
+      ],
+      [
+        'Coleta em diferentes repositórios científicos por meio de suas APIs',
+        'Modelos de machine learning que classificam se cada artigo se encaixa no contexto',
+        'Modelos de IA de diferentes provedores que dão sua opinião sobre o artigo, combinadas em um ensemble',
+        'Filtros de metadados',
+        'Filtros de domínio definidos junto com os especialistas',
+        'O conjunto curado exposto para a aplicação RAG consumir',
+      ],
+    ),
+    stack: [
+      layer('Pipeline', 'Pipeline', ['Python', 'Repository APIs'], 'cyan'),
+      layer('Machine learning', 'Machine learning', ['scikit-learn', 'PyTorch'], 'green'),
+      layer('AI models', 'Modelos de IA', ['LangChain', 'Multiple providers'], 'violet'),
+    ],
+    flow: [
+      {
+        art: 'pipeline',
+        tone: 'cyan',
+        label: s('Repositories', 'Repositórios'),
+        note: 'Python, repository APIs',
+        caption: s('Articles are collected from different scientific repositories.', 'Artigos são coletados de diferentes repositórios científicos.'),
+      },
+      {
+        art: 'screen',
+        tone: 'green',
+        label: s('Relevance classifier', 'Classificador de relevância'),
+        note: 'scikit-learn, PyTorch',
+        caption: s('Machine learning keeps the articles that fit the context.', 'Machine learning mantém os artigos que se encaixam no contexto.'),
+      },
+      {
+        art: 'vote',
+        tone: 'violet',
+        label: s('Ensemble of AI opinions', 'Ensemble de opiniões de IA'),
+        note: 'LangChain',
+        caption: s('Models from different providers each give an opinion, and the opinions are combined.', 'Modelos de diferentes provedores dão sua opinião, e as opiniões são combinadas.'),
+      },
+      {
+        art: 'filters',
+        tone: 'amber',
+        label: s('Metadata and domain filters', 'Filtros de metadados e domínio'),
+        caption: s('Metadata rules and the specialists’ own filters narrow it further.', 'Regras de metadados e os filtros dos especialistas refinam ainda mais.'),
+      },
+      {
+        art: 'curated',
+        tone: 'coral',
+        label: s('Curated set', 'Conjunto curado'),
+        caption: s('A manageable set of articles, ready for the RAG app.', 'Um conjunto gerenciável de artigos, pronto para a aplicação RAG.'),
+      },
+    ],
+  },
+  'petrobras-app': {
     outcomes: [
       s(
         'Researchers ask questions in plain language instead of reading dozens of papers by hand.',
@@ -354,17 +494,21 @@ export const caseStudies: Record<string, CaseStudy> = {
       s('Every answer cites the papers it came from.', 'Toda resposta cita os artigos de onde veio.'),
     ],
     problem: s(
-      'Answering a question about a set of retrieved papers meant reading dozens of documents by hand.',
-      'Responder uma pergunta sobre um conjunto de artigos recuperados exigia ler dezenas de documentos manualmente.',
+      'Even after curation, answering a question about a set of papers meant reading them one by one, and seeing the bigger picture across them was hard.',
+      'Mesmo depois da curadoria, responder uma pergunta sobre um conjunto de artigos exigia lê-los um a um, e enxergar o panorama entre eles era difícil.',
     ),
     built: list(
       [
-        'A Next.js and TypeScript app for natural-language questions over papers that were already retrieved and filtered',
+        'One Next.js and TypeScript app on top of the curated set from the data pipeline',
         'A RAG flow with embeddings in PostgreSQL/pgvector and language models through the Vercel AI SDK',
+        'Knowledge graphs and interactive charts to explore the literature',
+        'Background processing pipelines with Inngest',
       ],
       [
-        'Aplicação em Next.js e TypeScript para perguntas em linguagem natural sobre artigos já recuperados e filtrados',
+        'Uma aplicação em Next.js e TypeScript sobre o conjunto curado pelo pipeline de dados',
         'Fluxo de RAG com embeddings em PostgreSQL/pgvector e modelos de linguagem via Vercel AI SDK',
+        'Grafos de conhecimento e gráficos interativos para explorar a literatura',
+        'Pipelines de processamento em segundo plano com Inngest',
       ],
     ),
     details: list(
@@ -382,19 +526,11 @@ export const caseStudies: Record<string, CaseStudy> = {
       ],
     ),
     stack: [
-      layer('App', 'Aplicação', ['Next.js', 'TypeScript']),
-      layer('Retrieval', 'Recuperação', ['PostgreSQL', 'pgvector', 'Embeddings']),
-      layer('Language models', 'Modelos de linguagem', ['Vercel AI SDK']),
+      layer('App', 'Aplicação', ['Next.js', 'TypeScript'], 'cyan'),
+      layer('Retrieval', 'Recuperação', ['PostgreSQL', 'pgvector', 'Embeddings'], 'violet'),
+      layer('Language models', 'Modelos de linguagem', ['Vercel AI SDK'], 'green'),
+      layer('Background jobs', 'Processamento em segundo plano', ['Inngest'], 'amber'),
     ],
-    flow: [
-      { label: s('Selected papers', 'Artigos selecionados') },
-      { label: s('Embeddings', 'Embeddings') },
-      { label: s('Vector search', 'Busca vetorial'), note: 'pgvector' },
-      { label: s('Language model', 'Modelo de linguagem'), note: 'Vercel AI SDK' },
-      { label: s('Answer with references', 'Resposta com referências') },
-    ],
-  },
-  'petrobras-visualization': {
     media: [
       {
         type: 'image',
@@ -405,15 +541,35 @@ export const caseStudies: Record<string, CaseStudy> = {
         ),
       },
     ],
-    stack: [
-      layer('App', 'Aplicação', ['Next.js', 'TypeScript']),
-      layer('Data', 'Dados', ['PostgreSQL', 'Inngest']),
-    ],
     flow: [
-      { label: s('Literature and datasets', 'Literatura e bases de dados') },
-      { label: s('Background pipelines', 'Pipelines em segundo plano'), note: 'Inngest' },
-      { label: s('Structured storage', 'Armazenamento estruturado'), note: 'PostgreSQL' },
-      { label: s('Graphs and charts', 'Grafos e gráficos'), note: 'Next.js' },
+      {
+        art: 'library',
+        tone: 'cyan',
+        label: s('Curated articles', 'Artigos curados'),
+        note: 'from the data pipeline',
+        caption: s('The app reads the manageable set the pipeline produced.', 'A aplicação lê o conjunto gerenciável produzido pelo pipeline.'),
+      },
+      {
+        art: 'tfidf',
+        tone: 'violet',
+        label: s('Embeddings', 'Embeddings'),
+        note: 'PostgreSQL, pgvector',
+        caption: s('Each passage is stored as a vector for semantic search.', 'Cada trecho é armazenado como vetor para busca semântica.'),
+      },
+      {
+        art: 'ask',
+        tone: 'green',
+        label: s('Ask', 'Perguntar'),
+        note: 'Vercel AI SDK',
+        caption: s('Questions in plain language, answered with references.', 'Perguntas em linguagem natural, respondidas com referências.'),
+      },
+      {
+        art: 'explore',
+        tone: 'amber',
+        label: s('Explore', 'Explorar'),
+        note: 'Next.js, Inngest',
+        caption: s('Knowledge graphs and interactive charts across the literature.', 'Grafos de conhecimento e gráficos interativos sobre a literatura.'),
+      },
     ],
     links: [{ kind: 'live', url: 'https://resultados-aia.vercel.app/' }],
   },
