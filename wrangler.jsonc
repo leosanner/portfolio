@@ -1,0 +1,8 @@
+// Cloudflare Workers deploy: the Astro build in ./dist served as static assets.
+{
+  "name": "portfolio",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}

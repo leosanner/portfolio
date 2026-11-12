@@ -1,0 +1,83 @@
+---
+/**
+ * Hero: greeting plus the whole career drawn as one continuous route.
+ * Each stop links to its tab in the Experience timeline (#tab-<id>), which
+ * selects it there (see Experience.tsx).
+ */
+import type { Locale } from '../i18n/ui';
+import { t } from '../i18n/ui';
+import { profile } from '../data/profile';
+import { mainNodes } from '../data/career';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const tr = t(lang);
+
+// A small line icon and a chart colour per stop (24 × 24, stroked).
+const icons: Record<string, { tone: string; d: string }> = {
+  'water-quality': { tone: 'cyan', d: 'M12 3s-6 6.5-6 11a6 6 0 0 0 12 0c0-4.5-6-11-6-11zM9 15a3 3 0 0 0 3 3' },
+  'ocean-forecasting': { tone: 'violet', d: 'M3 15c2-3 4-3 6 0s4 3 6 0 4-3 6 0M3 20c2-2 4-2 6 0s4 2 6 0 4-2 6 0M8 10a5 5 0 0 1 8-4' },
+  petrobras: { tone: 'green', d: 'M6 3h8l4 4v6M6 3v18h6M14 3v4h4M17 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.5 20.5 22 23' },
+  healthcare: { tone: 'coral', d: 'M3 12h4l2-5 4 10 2-5h6' },
+  thesis: { tone: 'amber', d: 'M2 9l10-5 10 5-10 5zM6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5M22 9v6' },
+  'research-portal': { tone: 'cyan', d: 'M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z' },
+  masters: { tone: 'green', d: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM15.5 8.5l-2 5-5 2 2-5z' },
+};
+const fallback = { tone: 'amber', d: 'M12 8v8M8 12h8' };
+
+// Stops alternate slightly above/below the centre line only so labels don't collide.
+// Coordinates are percentages of the chart box; the SVG viewBox is 1000 × 300.
+const stops = mainNodes.map((n, i) => ({
+  n,
+  icon: icons[n.id] ?? fallback,
+  x: 6 + i * (88 / (mainNodes.length - 1)),
+  y: i % 2 === 0 ? 56 : 44,
+  above: i % 2 === 1,
+}));
+const route = stops
+  .map((p, i) => {
+    if (i === 0) return `M 0 ${p.y * 3} L ${p.x * 10} ${p.y * 3}`;
+    const q = stops[i - 1];
+    const mx = ((q.x + p.x) / 2) * 10;
+    return `C ${mx} ${q.y * 3}, ${mx} ${p.y * 3}, ${p.x * 10} ${p.y * 3}`;
+  })
+  .join(' ');
+---
+
+<section class="hero">
+  <div class="hero__head">
+    <h1 class="hero__title">{tr('hero.greeting')}</h1>
+    <p class="hero__sub">{profile.headline[lang]}, {profile.location[lang]}</p>
+  </div>
+  <nav class="hero__scroll" aria-label={tr('experience.timeline')}>
+    <div class="hero__chart">
+      <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+        <path d={route} class="hero__route" pathLength="1"></path>
+      </svg>
+      <ol>
+        {
+          stops.map((p, i) => (
+            <li
+              class:list={['hero__stop', p.above ? 'is-above' : 'is-below', p.n.ongoing && 'is-ongoing']}
+              style={`left:${p.x}%;top:${p.y}%;--i:${i};--tone:var(--tone-${p.icon.tone})`}
+            >
+              <a href={`#tab-${p.n.id}`}>
+                <span class="hero__dot" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d={p.icon.d} />
+                  </svg>
+                </span>
+                <span class="hero__label">
+                  {p.n.title[lang]}
+                  <em>{p.n.period?.[lang]}</em>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </nav>
+</section>

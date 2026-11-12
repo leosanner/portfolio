@@ -1,0 +1,17 @@
+---
+// Root: route visitors to their preferred language. Static, no server needed.
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting…</title>
+    <script is:inline>
+      var pt = (navigator.languages || [navigator.language]).some(function (l) { return /^pt/i.test(l); });
+      location.replace(pt ? '/pt/' : '/en/');
+    </script>
+    <noscript><meta http-equiv="refresh" content="0; url=/en/" /></noscript>
+    <link rel="alternate" hreflang="en" href="/en/" />
+    <link rel="alternate" hreflang="pt-BR" href="/pt/" />
+  </head>
+  <body><a href="/en/">English</a> · <a href="/pt/">Português</a></body>
+</html>
