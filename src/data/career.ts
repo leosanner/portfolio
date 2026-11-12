@@ -144,35 +144,6 @@ export const mainNodes: CareerNode[] = [
     tech: ['Next.js', 'TypeScript', 'Prisma', 'PostgreSQL', 'Neon', 'GitHub Actions', 'Vercel'],
   },
   {
-    id: 'trust-gtw',
-    kind: 'job',
-    title: { en: 'Software engineer', pt: 'Engenheiro de software' },
-    category: { en: 'Industry', pt: 'Mercado' },
-    period: { en: 'Since Jul 2026', pt: 'Desde jul. 2026' },
-    ongoing: true,
-    org: 'Trust GTW',
-    affiliations: [{ org: 'trust-gtw', role: 'company' }],
-    summary: {
-      en: 'Building a Go telemetry collector that receives client data over OpenTelemetry, validates it and forwards it to ingestion on AWS.',
-      pt: 'Desenvolvo um coletor de telemetria em Go que recebe dados de clientes via OpenTelemetry, valida e encaminha para ingestão na AWS.',
-    },
-    highlights: {
-      en: [
-        'OTLP over gRPC',
-        'Streaming to Kinesis Data Firehose',
-        'Client auth with Amazon Cognito',
-        'Concurrency and graceful shutdown',
-      ],
-      pt: [
-        'OTLP sobre gRPC',
-        'Envio contínuo para o Kinesis Data Firehose',
-        'Autenticação de clientes com Amazon Cognito',
-        'Concorrência e graceful shutdown',
-      ],
-    },
-    tech: ['Go', 'gRPC', 'OpenTelemetry', 'AWS Kinesis', 'Amazon Cognito'],
-  },
-  {
     id: 'masters',
     kind: 'masters',
     title: { en: 'Data-driven decision support', pt: 'Suporte à decisão orientado a dados' },

@@ -43,11 +43,7 @@ export const ui = {
     'experience.subprojectOf': 'Part of',
     'education.title': 'Education',
     'contact.title': 'Let’s talk',
-    'contact.body':
-      'The best way to reach me is a message on LinkedIn. My code and side projects are on GitHub.',
-    'contact.linkedin': 'Message me on LinkedIn',
-    'contact.github': 'See my code on GitHub',
-    'footer.built': 'Static site built with Astro and React Flow.',
+    'footer.rights': 'All rights reserved.',
   },
   pt: {
     'nav.experience': 'Experiência',
@@ -87,11 +83,7 @@ export const ui = {
     'experience.subprojectOf': 'Parte de',
     'education.title': 'Formação',
     'contact.title': 'Vamos conversar',
-    'contact.body':
-      'A melhor forma de falar comigo é uma mensagem no LinkedIn. Meu código e projetos pessoais estão no GitHub.',
-    'contact.linkedin': 'Falar comigo no LinkedIn',
-    'contact.github': 'Ver meu código no GitHub',
-    'footer.built': 'Site estático feito com Astro e React Flow.',
+    'footer.rights': 'Todos os direitos reservados.',
   },
 } satisfies Record<Locale, Record<string, string>>;
 

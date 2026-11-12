@@ -14,7 +14,7 @@ import IllustratedFlow from './IllustratedFlow';
  * and an animated "how it works" flow.
  */
 
-const DEFAULT_ID = 'trust-gtw';
+const DEFAULT_ID = 'healthcare';
 
 /* ---------- Pieces ---------- */
 

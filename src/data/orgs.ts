@@ -6,7 +6,7 @@
  */
 import type { Localized } from '../i18n/ui';
 
-export type OrgId = 'cnpq' | 'unifesp' | 'usp' | 'petrobras' | 'univesp' | 'trust-gtw';
+export type OrgId = 'cnpq' | 'unifesp' | 'usp' | 'petrobras' | 'univesp';
 
 export interface Org {
   name: string;
@@ -49,10 +49,6 @@ export const orgs: Record<OrgId, Org> = {
     },
     logo: '/logos/univesp.png',
     scale: 1.3,
-  },
-  'trust-gtw': {
-    name: 'Trust GTW',
-    fullName: { en: 'Trust GTW', pt: 'Trust GTW' },
   },
 };
 

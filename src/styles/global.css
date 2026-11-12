@@ -248,8 +248,10 @@ em {
   stroke: var(--route);
   stroke-width: 2.5;
   vector-effect: non-scaling-stroke;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  /* pathLength is 1, but the stretched viewBox can make the drawn line longer
+     than one dash: a dash of 2 always covers it, and the offset hides it at start. */
+  stroke-dasharray: 2;
+  stroke-dashoffset: 2;
   animation: hero-draw 2.4s 0.2s ease-in-out forwards;
 }
 @keyframes hero-draw {
@@ -1015,31 +1017,57 @@ em {
   }
 }
 
-/* ---------- Contact ---------- */
+/* ---------- Contact: plain rows, like the education table ---------- */
 .contact {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px 40px;
+  max-width: 720px;
+}
+.contact li {
+  border-top: 1px solid var(--line);
+}
+.contact li:last-child {
+  border-bottom: 1px solid var(--line);
 }
 .contact a {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: clamp(1.25rem, 2.6vw, 1.75rem);
-  font-weight: 750;
-  text-decoration: underline;
-  text-decoration-color: var(--route);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 7px;
-}
-.contact a:hover {
-  color: var(--route);
+  gap: 14px;
+  padding: 18px 0;
+  text-decoration: none;
 }
 .contact svg {
-  width: 26px;
-  height: 26px;
   flex: none;
+  width: 20px;
+  height: 20px;
   fill: currentColor;
+}
+.contact__name {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.contact__url {
+  margin-left: auto;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 5px;
+  transition:
+    color 150ms,
+    text-decoration-color 150ms;
+}
+.contact a:hover .contact__url,
+.contact a:focus-visible .contact__url {
+  color: var(--route);
+  text-decoration-color: var(--route);
+}
+@media (max-width: 520px) {
+  .contact a {
+    flex-wrap: wrap;
+  }
+  .contact__url {
+    flex-basis: 100%;
+    margin-left: 34px;
+    font-size: 0.9375rem;
+  }
 }
 
 /* ---------- Footer ---------- */

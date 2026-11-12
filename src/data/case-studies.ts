@@ -877,40 +877,6 @@ export const caseStudies: Record<string, CaseStudy> = {
     ],
     links: [{ kind: 'live', url: 'https://projeto-oceano-five.vercel.app/' }],
   },
-  'trust-gtw': {
-    problem: s(
-      'Client telemetry has to reach the ingestion pipeline on AWS, and only from authenticated clients.',
-      'A telemetria dos clientes precisa chegar ao pipeline de ingestão na AWS, e apenas de clientes autenticados.',
-    ),
-    built: list(
-      [
-        'A Go collector that receives OpenTelemetry data (OTLP) over gRPC',
-        'Client access checks with Amazon Cognito',
-        'Continuous streaming to Kinesis Data Firehose for ingestion',
-      ],
-      [
-        'Coletor em Go que recebe dados OpenTelemetry (OTLP) via gRPC',
-        'Validação de acesso dos clientes com Amazon Cognito',
-        'Envio contínuo ao Kinesis Data Firehose para ingestão',
-      ],
-    ),
-    details: list(
-      ['Concurrent processing with goroutines and channels', 'Graceful shutdown'],
-      ['Processamento concorrente com goroutines e channels', 'Graceful shutdown'],
-    ),
-    stack: [
-      layer('Service', 'Serviço', ['Go', 'gRPC']),
-      layer('Telemetry', 'Telemetria', ['OpenTelemetry', 'OTLP']),
-      layer('AWS', 'AWS', ['Kinesis Data Firehose', 'Amazon Cognito']),
-    ],
-    flow: [
-      { label: s('Client telemetry', 'Telemetria dos clientes'), note: 'OTLP over gRPC' },
-      { label: s('Access check', 'Validação de acesso'), note: 'Amazon Cognito' },
-      { label: s('Go collector', 'Coletor em Go'), note: 'goroutines, channels' },
-      { label: s('Streaming', 'Envio contínuo'), note: 'Kinesis Data Firehose' },
-      { label: s('Ingestion on AWS', 'Ingestão na AWS') },
-    ],
-  },
   masters: {
     problem: s(
       'Data for environmental impact assessment is spread across many sources and regulators, which makes it hard to use in decisions.',
